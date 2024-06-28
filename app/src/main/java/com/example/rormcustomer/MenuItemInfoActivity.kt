@@ -19,6 +19,7 @@ class MenuItemInfoActivity : AppCompatActivity() {
     private var menuItemId: String? = null
     private lateinit var auth: FirebaseAuth
     private var number = 1
+    private var isEdit = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,18 +29,23 @@ class MenuItemInfoActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
 
-        menuItemId = intent.getStringExtra("menuItemId")
-        if (menuItemId != null) {
+        val menuItemName = intent.getStringExtra("menuItemName")
+        isEdit = intent.getBooleanExtra("isEdit", false)
+        number = intent.getIntExtra("quantity", 1)
+        binding.numberTextView.text = number.toString()
+
+        if (menuItemName != null) {
             val restaurantId = intent.getStringExtra("restaurantId")
             if (restaurantId != null) {
-                menuItemRef = database.getReference("restaurants").child(restaurantId).child("menu").child(menuItemId!!)
-                retrieveAndDisplayMenuItem()
+                // Fetch the menu item details based on name
+                menuItemRef = database.getReference("restaurants").child(restaurantId).child("menu")
+                retrieveAndDisplayMenuItem(menuItemName)
             } else {
                 Log.e("MenuItemInfoActivity", "Restaurant ID is null")
                 finish()
             }
         } else {
-            Log.e("MenuItemInfoActivity", "MenuItemId is null")
+            Log.e("MenuItemInfoActivity", "MenuItemName is null")
             finish()
         }
 
@@ -61,31 +67,44 @@ class MenuItemInfoActivity : AppCompatActivity() {
             }
 
             addToBasketButton.setOnClickListener {
-                addToBasket()
+                if (isEdit) {
+                    updateBasket()
+                } else {
+                    addToBasket()
+                }
             }
+        }
+
+        if (isEdit) {
+            binding.addToBasketButton.text = "Update Basket"
         }
     }
 
-    private fun retrieveAndDisplayMenuItem() {
-        menuItemRef.get().addOnSuccessListener { snapshot ->
-            val menuItem = snapshot.getValue(MenuItem::class.java)
-            Log.d("MenuItemInfoActivity", "Retrieved menu item: $menuItem")
-            if (menuItem != null) {
-                with(binding) {
-                    menuItemNameTextView.text = menuItem.foodName
-                    menuItemPriceTextView.text = menuItem.foodPrice
-                    menuItemDescriptionTextView.text = menuItem.foodDescription
-                    menuItemIngredientsTextView.text = menuItem.foodIngredients
-                    Glide.with(this@MenuItemInfoActivity).load(Uri.parse(menuItem.foodImage))
-                        .into(menuItemImageView)
+    private fun retrieveAndDisplayMenuItem(menuItemName: String) {
+        menuItemRef.orderByChild("foodName").equalTo(menuItemName).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (itemSnapshot in snapshot.children) {
+                    val menuItem = itemSnapshot.getValue(MenuItem::class.java)
+                    Log.d("MenuItemInfoActivity", "Retrieved menu item: $menuItem")
+                    if (menuItem != null) {
+                        with(binding) {
+                            menuItemNameTextView.text = menuItem.foodName
+                            menuItemPriceTextView.text = menuItem.foodPrice
+                            menuItemDescriptionTextView.text = menuItem.foodDescription
+                            menuItemIngredientsTextView.text = menuItem.foodIngredients
+                            Glide.with(this@MenuItemInfoActivity).load(Uri.parse(menuItem.foodImage))
+                                .into(menuItemImageView)
+                        }
+                    } else {
+                        Log.e("MenuItemInfoActivity", "Menu item is null")
+                    }
                 }
-                Log.d("MenuItemInfoActivity", "Menu item retrieved successfully: $menuItem")
-            } else {
-                Log.e("MenuItemInfoActivity", "Menu item is null")
             }
-        }.addOnFailureListener {
-            Log.e("MenuItemInfoActivity", "Failed to retrieve menu item", it)
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("MenuItemInfoActivity", "Failed to retrieve menu item", error.toException())
+            }
+        })
     }
 
     private fun addToBasket() {
@@ -140,12 +159,43 @@ class MenuItemInfoActivity : AppCompatActivity() {
                     newOrderRef.setValue(orderData)
                 }
                 Log.d("MenuItemInfoActivity", "Added to basket: ${binding.menuItemNameTextView.text} with quantity $number")
-                // Navigate back to the previous screen
                 finish()
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("MenuItemInfoActivity", "Failed to add to basket", error.toException())
+            }
+        })
+    }
+
+    private fun updateBasket() {
+        val userId = auth.currentUser?.uid ?: return
+        val restaurantId = intent.getStringExtra("restaurantId") ?: return
+
+        orderRef = database.getReference("orders")
+        val query = orderRef.orderByChild("userId").equalTo(userId)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (orderSnapshot in snapshot.children) {
+                    val orderRestaurantId = orderSnapshot.child("restaurantId").getValue(String::class.java)
+                    if (orderRestaurantId == restaurantId) {
+                        val itemsSnapshot = orderSnapshot.child("items")
+                        for (itemSnapshot in itemsSnapshot.children) {
+                            val existingItemName = itemSnapshot.child("foodName").getValue(String::class.java)
+                            if (existingItemName == binding.menuItemNameTextView.text.toString()) {
+                                itemSnapshot.ref.child("quantity").setValue(number)
+                                break
+                            }
+                        }
+                        break
+                    }
+                }
+                Log.d("MenuItemInfoActivity", "Updated basket: ${binding.menuItemNameTextView.text} with quantity $number")
+                finish()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("MenuItemInfoActivity", "Failed to update basket", error.toException())
             }
         })
     }

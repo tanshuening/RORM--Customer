@@ -93,7 +93,8 @@ class RestaurantInfoActivity : AppCompatActivity() {
             adapter.addFrag(BookingFragment(), "Booking")
 
             val menuFragment = MenuFragment().apply {
-                arguments = Bundle().apply { putString("RestaurantId", restaurantId) }
+                arguments = Bundle().apply {
+                    putString("RestaurantId", restaurantId) }
             }
             adapter.addFrag(menuFragment, "Menu")
 

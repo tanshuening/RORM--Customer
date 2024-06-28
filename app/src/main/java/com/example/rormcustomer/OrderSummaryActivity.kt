@@ -44,7 +44,7 @@ class OrderSummaryActivity : AppCompatActivity() {
         orderQuery = database.getReference("orders").orderByChild("userId").equalTo(userId)
         restaurantRef = database.getReference("restaurants").child(restaurantId!!)
 
-        adapter = OrderSummaryMenuItemAdapter(items, prices, quantities)
+        adapter = OrderSummaryMenuItemAdapter(items, prices, quantities, restaurantId!!)
 
         binding.orderSummaryRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.orderSummaryRecyclerView.adapter = adapter
