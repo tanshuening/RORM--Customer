@@ -183,7 +183,11 @@ class MenuItemInfoActivity : AppCompatActivity() {
                         for (itemSnapshot in itemsSnapshot.children) {
                             val existingItemName = itemSnapshot.child("foodName").getValue(String::class.java)
                             if (existingItemName == binding.menuItemNameTextView.text.toString()) {
-                                itemSnapshot.ref.child("quantity").setValue(number)
+                                if (number > 0) {
+                                    itemSnapshot.ref.child("quantity").setValue(number)
+                                } else {
+                                    itemSnapshot.ref.removeValue()
+                                }
                                 break
                             }
                         }
