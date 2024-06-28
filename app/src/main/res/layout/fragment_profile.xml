@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.ProfileFragment"
+    android:orientation="vertical"
+    android:gravity="center" >
+
+    <LinearLayout
+        android:id="@+id/customerInfo"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardViewImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:elevation="5dp"
+            app:cardCornerRadius="50dp" >
+
+            <ImageView
+                android:id="@+id/profilePicture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                tools:srcCompat="@tools:sample/avatars" />
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/customerNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="20sp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/roboto"/>
+    </LinearLayout>
+
+    <!-- Loyalty Points -->
+    <LinearLayout
+        android:id="@+id/loyaltyPointsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:background="@drawable/white_button" >
+
+        <LinearLayout
+            android:id="@+id/loyaltyHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp" >
+
+            <TextView
+                android:id="@+id/loyaltyTier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gold"
+                android:textSize="20sp"
+                android:fontFamily="@font/roboto"/>
+
+            <TextView
+                android:id="@+id/loyaltyPoints"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100 Points"
+                android:textSize="15sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/roboto"/>
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/loyaltyProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:max="200"
+            android:progress="100"
+            android:progressTint="@color/black"
+            android:backgroundTint="@color/white"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"/>
+
+        <TextView
+            android:id="@+id/loyaltyInstruction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto"
+            android:text="Get 100 more points by 6 June 2024 to reach the Platinum." />
+    </LinearLayout>
+
+    <!-- Features -->
+    <LinearLayout
+        android:id="@+id/firstRow"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:baselineAligned="false">
+
+        <!-- My Rewards -->
+        <LinearLayout
+            android:id="@+id/myRewardsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@drawable/white_button">
+
+            <ImageButton
+                android:id="@+id/myRewardsIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="My Rewards"
+                android:src="@drawable/reward"
+                android:backgroundTint="@color/white"/>
+
+            <TextView
+                android:id="@+id/myRewardsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="My Rewards"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:fontFamily="@font/roboto"/>
+        </LinearLayout>
+
+        <!-- Rewards -->
+        <LinearLayout
+            android:id="@+id/rewardsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@drawable/white_button" >
+
+            <ImageButton
+                android:id="@+id/rewardsIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Rewards"
+                android:src="@drawable/voucher"
+                android:backgroundTint="@color/white"/>
+
+            <TextView
+                android:id="@+id/rewardsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Rewards"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:fontFamily="@font/roboto"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 2nd row features -->
+    <LinearLayout
+        android:id="@+id/secondRow"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:gravity="top"
+        android:baselineAligned="false">
+
+        <!-- Saved -->
+        <LinearLayout
+            android:id="@+id/savedLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@drawable/white_button">
+
+            <ImageButton
+                android:id="@+id/savedIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Saved"
+                android:src="@drawable/saved_res"
+                android:backgroundTint="@color/white"/>
+
+            <TextView
+                android:id="@+id/savedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Saved"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:fontFamily="@font/roboto"/>
+        </LinearLayout>
+
+        <!-- Profile -->
+        <LinearLayout
+            android:id="@+id/accountLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@drawable/white_button" >
+
+            <ImageButton
+                android:id="@+id/accountIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Account"
+                android:src="@drawable/account"
+                android:backgroundTint="@color/white"/>
+
+            <TextView
+                android:id="@+id/accountText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Account"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:fontFamily="@font/roboto"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>

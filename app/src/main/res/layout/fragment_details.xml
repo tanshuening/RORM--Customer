@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/detailsFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".restaurantFragment.DetailsFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Details"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/restaurantInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/details">
+
+                <LinearLayout
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp" >
+
+                    <TextView
+                        android:id="@+id/addressTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Address"
+                        android:textSize="16sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/addressEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/location"
+                        android:drawablePadding="10dp"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:text="Address"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/addressTextView"
+                        app:layout_constraintStart_toEndOf="@+id/addressTextView"
+                        app:layout_constraintTop_toTopOf="@+id/addressTextView" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/priceTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Price"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/priceEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/price2"
+                        android:drawablePadding="10dp"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:text="Price"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/cuisine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/cuisineTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Cuisine"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/cuisineEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/cuisine"
+                        android:drawablePadding="10dp"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:text="Cuisine"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/payment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp" >
+
+                    <TextView
+                        android:id="@+id/paymentTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Payment"
+                        android:textSize="16sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/paymentEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/payment"
+                        android:drawablePadding="10dp"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:text="Payment"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/parking"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/parkingTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Parking"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/parkingEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/parking"
+                        android:drawablePadding="10dp"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:text="Parking"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/dressCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/dressCodeTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Dress Code"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/dressCodeEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/dresscode"
+                        android:drawablePadding="10dp"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:text="Dress Code"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/descriptionTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Description"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/descriptionEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/description"
+                        android:drawablePadding="10dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:maxLines="5"
+                        android:text="Description"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/phoneNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/phoneNumberTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Phone Number"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/phoneNumberEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="30dp"
+                        android:layout_weight="3"
+                        android:drawableLeft="@drawable/phone"
+                        android:drawablePadding="10dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center_vertical"
+                        android:maxLines="5"
+                        android:text="Phone Number"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/BusinessHours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/businessHoursTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/roboto"
+                        android:text="Business Hours"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:layout_marginStart="30dp"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/startTimeEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:drawableLeft="@drawable/time"
+                            android:drawablePadding="10dp"
+                            android:fontFamily="@font/roboto"
+                            android:gravity="center_vertical"
+                            android:text="Start Time"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/symbol"
+                            android:layout_width="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:gravity="center"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/roboto"
+                            android:text="-"/>
+
+                        <TextView
+                            android:id="@+id/endTimeEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:drawablePadding="10dp"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/roboto"
+                            android:gravity="center_vertical"
+                            android:text="End Time"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>
