@@ -1,11 +1,13 @@
 package com.example.rormcustomer.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.rormcustomer.AccountActivity
 import com.example.rormcustomer.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -36,6 +38,15 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fetchUserName()
+
+        val accountClickListener = View.OnClickListener {
+            val intent = Intent(activity, AccountActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.accountLayout.setOnClickListener(accountClickListener)
+        binding.accountIcon.setOnClickListener(accountClickListener)
+        binding.accountText.setOnClickListener(accountClickListener)
     }
 
     private fun fetchUserName() {
