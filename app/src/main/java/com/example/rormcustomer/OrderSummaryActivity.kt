@@ -58,7 +58,7 @@ class OrderSummaryActivity : AppCompatActivity() {
 
         val paymentClickListener = View.OnClickListener {
             val intent = Intent(this, PaymentMethodActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, PAYMENT_METHOD_REQUEST_CODE)
         }
 
         binding.paymentMethod.setOnClickListener(paymentClickListener)
@@ -115,5 +115,17 @@ class OrderSummaryActivity : AppCompatActivity() {
         }.addOnFailureListener {
             Log.e("OrderSummaryActivity", "Failed to load restaurant name", it)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PAYMENT_METHOD_REQUEST_CODE && resultCode == RESULT_OK) {
+            val paymentMethod = data?.getStringExtra("paymentMethod")
+            binding.paymentMethodText.text = paymentMethod
+        }
+    }
+
+    companion object {
+        private const val PAYMENT_METHOD_REQUEST_CODE = 1
     }
 }

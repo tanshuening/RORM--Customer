@@ -15,23 +15,23 @@ class PaymentMethodActivity : AppCompatActivity() {
         binding = ActivityPaymentMethodBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Handle back button click
         binding.paymentAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
-            val intent = Intent(this, OrderSummaryActivity::class.java)
-            startActivity(intent)
+/*            val intent = Intent(this, OrderSummaryActivity::class.java)
+            startActivity(intent)*/
             finish()
         }
 
-        // Handle payment method selection
         binding.paymentMethodRadioGroup.setOnCheckedChangeListener { group, checkedId ->
-            when (checkedId) {
-                R.id.cashRadioButton -> {
-                    // Handle cash payment method selected
-                }
-                R.id.cardRadioButton -> {
-                    // Handle card payment method selected
-                }
+            val selectedPaymentMethod = when (checkedId) {
+                R.id.cashRadioButton -> "Cash"
+                R.id.cardRadioButton -> "Card"
+                else -> ""
             }
+            // Pass the selected payment method back to OrderSummaryActivity
+            val resultIntent = Intent()
+            resultIntent.putExtra("paymentMethod", selectedPaymentMethod)
+            setResult(RESULT_OK, resultIntent)
+            finish()
         }
     }
 }
