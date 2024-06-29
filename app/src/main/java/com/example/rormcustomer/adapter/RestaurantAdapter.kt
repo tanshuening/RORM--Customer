@@ -15,7 +15,8 @@ import com.example.rormcustomer.models.Restaurant
 
 class RestaurantAdapter(
     private val restaurantItems: List<Restaurant>,
-    private val requireContext: Context
+    private val isHomeFragment: Boolean,
+    private val context: Context
 ) : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RestaurantViewHolder {
@@ -38,11 +39,16 @@ class RestaurantAdapter(
 
             binding.apply {
                 restaurantName.text = restaurantItem.name
-                restaurantTag.text = restaurantItem.cuisine
+
+                restaurantTag.text = if (isHomeFragment) {
+                    restaurantItem.cuisine?.split(",")?.firstOrNull()
+                } else {
+                    restaurantItem.cuisine // Show all tags elsewhere
+                }
 
                 if (!restaurantItem.images.isNullOrEmpty()) {
                     val uri = Uri.parse(restaurantItem.images[0])
-                    Glide.with(requireContext).load(uri).into(restaurantImage)
+                    Glide.with(context).load(uri).into(restaurantImage)
                 } else {
                     restaurantImage.setImageResource(com.denzcoskun.imageslider.R.drawable.default_placeholder)
                 }
@@ -54,7 +60,7 @@ class RestaurantAdapter(
         }
 
         private fun openDetailsActivity(restaurantItem: Restaurant) {
-            val intent = Intent(requireContext, RestaurantInfoActivity::class.java).apply {
+            val intent = Intent(context, RestaurantInfoActivity::class.java).apply {
                 putExtra("RestaurantId", restaurantItem.restaurantId)
                 putExtra("RestaurantName", restaurantItem.name)
                 putExtra("RestaurantCuisine", restaurantItem.cuisine)
@@ -71,7 +77,7 @@ class RestaurantAdapter(
                 putExtra("RestaurantBusinessEndTime", restaurantItem.endTime)
             }
             Log.d("RestaurantAdapter", "Starting RestaurantInfoActivity with RestaurantId: ${restaurantItem.restaurantId}")
-            requireContext.startActivity(intent)
+            context.startActivity(intent)
         }
     }
 }

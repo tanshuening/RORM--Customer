@@ -68,18 +68,26 @@ class HomeFragment : Fragment() {
                 for (dataSnapshot in snapshot.children) {
                     val restaurant = dataSnapshot.getValue(Restaurant::class.java)
                     restaurant?.let {
-                        if (selectedLocation == null || it.location.equals(selectedLocation, ignoreCase = true)) {
-                            restaurantList.add(it)
-                            Log.d("HomeFragment", "Restaurant fetched: ${it.name}")
-                        }
+                        restaurantList.add(it)
+                        Log.d("HomeFragment", "Restaurant fetched: ${it.name}")
                     }
                 }
+
+                // Filter restaurants based on selected location if provided
+                if (!selectedLocation.isNullOrEmpty() && selectedLocation != "All Locations") {
+                    val filteredList = restaurantList.filter {
+                        it.location.equals(selectedLocation, ignoreCase = true)
+                    }
+                    restaurantList.clear()
+                    restaurantList.addAll(filteredList)
+                }
+
                 // Notify adapter about data changes
                 binding.recommendedRestaurantRecyclerView.adapter?.notifyDataSetChanged()
 
                 // Check if no restaurants were fetched
                 if (restaurantList.isEmpty()) {
-                    Toast.makeText(requireContext(), "No restaurants found for selected location", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "No restaurants found", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -104,7 +112,7 @@ class HomeFragment : Fragment() {
             locationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val selectedLocation = parent?.getItemAtPosition(position).toString()
-                    fetchRestaurants(selectedLocation)
+                    fetchRestaurants(if (selectedLocation == "All Locations") null else selectedLocation)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -128,7 +136,7 @@ class HomeFragment : Fragment() {
 
     private fun setupRecyclerViews() {
         binding.recommendedRestaurantRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        val adapter = RestaurantAdapter(restaurantList, requireContext())
+        val adapter = RestaurantAdapter(restaurantList, true, requireContext())
         binding.recommendedRestaurantRecyclerView.adapter = adapter
     }
 
