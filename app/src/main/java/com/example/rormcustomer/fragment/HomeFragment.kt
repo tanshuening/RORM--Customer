@@ -59,20 +59,28 @@ class HomeFragment : Fragment() {
         fetchRestaurants()
     }
 
-    private fun fetchRestaurants() {
+    private fun fetchRestaurants(selectedLocation: String? = null) {
         val restaurantRef = database.reference.child("restaurants")
+
         restaurantRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 restaurantList.clear()
                 for (dataSnapshot in snapshot.children) {
                     val restaurant = dataSnapshot.getValue(Restaurant::class.java)
                     restaurant?.let {
-                        restaurantList.add(it)
-                        Log.d("HomeFragment", "Restaurant fetched: ${it.name}")
+                        if (selectedLocation == null || it.location.equals(selectedLocation, ignoreCase = true)) {
+                            restaurantList.add(it)
+                            Log.d("HomeFragment", "Restaurant fetched: ${it.name}")
+                        }
                     }
                 }
                 // Notify adapter about data changes
                 binding.recommendedRestaurantRecyclerView.adapter?.notifyDataSetChanged()
+
+                // Check if no restaurants were fetched
+                if (restaurantList.isEmpty()) {
+                    Toast.makeText(requireContext(), "No restaurants found for selected location", Toast.LENGTH_SHORT).show()
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -80,6 +88,32 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(), "Failed to load restaurants", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun setupToolbar() {
+        val locationSpinner = binding.root.findViewById<Spinner>(R.id.locationSpinner)
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.malaysia_states,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            locationSpinner.adapter = adapter
+
+            // Set up listener for spinner item selection
+            locationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val selectedLocation = parent?.getItemAtPosition(position).toString()
+                    fetchRestaurants(selectedLocation)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // Handle case where nothing is selected
+                }
+            }
+        }
+
+        setCurrentTime()
     }
 
     private fun setupImageSlider() {
@@ -193,7 +227,7 @@ class HomeFragment : Fragment() {
         return date == today
     }
 
-    private fun setupToolbar() {
+/*    private fun setupToolbar() {
         val locationSpinner = binding.root.findViewById<Spinner>(R.id.locationSpinner)
         ArrayAdapter.createFromResource(
             requireContext(),
@@ -205,7 +239,7 @@ class HomeFragment : Fragment() {
         }
 
         setCurrentTime()
-    }
+    }*/
 
     private fun setCurrentTime() {
         val timeTextView = binding.root.findViewById<TextView>(R.id.currentTime)
