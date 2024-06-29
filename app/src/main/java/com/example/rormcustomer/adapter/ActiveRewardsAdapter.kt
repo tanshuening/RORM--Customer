@@ -14,12 +14,13 @@ class ActiveRewardsAdapter(
     private val promotions: List<PromotionItem>,
     private var promotionName: String?,
     private var promotionImage: String?,
-    private val onPromotionClick: (PromotionItem) -> Unit
+    private val onPromotionClick: (PromotionItem) -> Unit,
+    private val onAddButtonClick: (PromotionItem, Int) -> Unit
 ) : RecyclerView.Adapter<ActiveRewardsAdapter.ActiveRewardsViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActiveRewardsViewHolder {
         val binding = CardViewActiveRewardsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ActiveRewardsViewHolder(binding)
+        return ActiveRewardsViewHolder(binding, onAddButtonClick)
     }
 
     override fun onBindViewHolder(holder: ActiveRewardsViewHolder, position: Int) {
@@ -34,14 +35,10 @@ class ActiveRewardsAdapter(
         return promotions.size
     }
 
-    fun updatePromotionDetails(name: String?, image: String?) {
-        promotionName = name
-        promotionImage = image
-        notifyDataSetChanged()
-    }
-
-    class ActiveRewardsViewHolder(private val binding: CardViewActiveRewardsBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class ActiveRewardsViewHolder(
+        val binding: CardViewActiveRewardsBinding,
+        private val onAddButtonClick: (PromotionItem, Int) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(promotion: PromotionItem, promotionName: String?, image: String?) {
             binding.promotionName.text = promotionName ?: promotion.name
@@ -54,6 +51,10 @@ class ActiveRewardsAdapter(
                 Glide.with(binding.root.context)
                     .load(imageUrl)
                     .into(binding.promotionImage)
+            }
+
+            binding.addButton.setOnClickListener {
+                onAddButtonClick(promotion, adapterPosition)
             }
         }
     }

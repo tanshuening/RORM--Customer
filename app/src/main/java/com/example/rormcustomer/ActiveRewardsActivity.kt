@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -50,7 +51,7 @@ class ActiveRewardsActivity : AppCompatActivity() {
             return
         }
 
-        adapter = ActiveRewardsAdapter(promotions, promotionName, promotionImage) { promotion ->
+        adapter = ActiveRewardsAdapter(promotions, promotionName, promotionImage, { promotion ->
             val intent = Intent(this, MyRewardsInfoActivity::class.java).apply {
                 putExtra("promotionName", promotion.name)
                 putExtra("promotionDescription", promotion.description)
@@ -61,16 +62,37 @@ class ActiveRewardsActivity : AppCompatActivity() {
                 putExtra("promotionImage", promotion.image)
             }
             startActivity(intent)
-        }
+        }, { promotion, position ->
+            showOfferSelectedDialog(promotion, position)
+        })
         binding.rewardsRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.rewardsRecyclerView.adapter = adapter
-
 
         binding.appBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
             onBackPressed()
         }
 
         loadPromotions()
+    }
+
+    private fun showOfferSelectedDialog(promotion: PromotionItem, position: Int) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Offer Selected")
+            .setMessage("You have selected ${promotion.name}.")
+            .setPositiveButton("Apply") { _, _ ->
+                val viewHolder = binding.rewardsRecyclerView.findViewHolderForAdapterPosition(position) as? ActiveRewardsAdapter.ActiveRewardsViewHolder
+                viewHolder?.binding?.addButton?.setImageResource(R.drawable.check_button)
+
+                // Navigate to OrderSummaryActivity with restaurantId and promotionName
+                val intent = Intent(this, OrderSummaryActivity::class.java).apply {
+                    putExtra("restaurantId", restaurantId)
+                    putExtra("promotionName", promotion.name)
+                }
+                startActivity(intent)
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+        dialog.show()
     }
 
     private fun loadPromotions() {

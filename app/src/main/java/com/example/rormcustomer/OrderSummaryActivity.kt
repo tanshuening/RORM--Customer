@@ -98,6 +98,11 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.promotionsText.setOnClickListener(promotionClickListener)
         binding.promotionsImage.setOnClickListener(promotionClickListener)
 
+        // Update promotionsText with the applied promotion name if available
+        val appliedPromotionName = intent.getStringExtra("promotionName")
+        if (!appliedPromotionName.isNullOrEmpty()) {
+            binding.promotionsText.text = appliedPromotionName
+        }
     }
 
     private fun loadOrderData() {
