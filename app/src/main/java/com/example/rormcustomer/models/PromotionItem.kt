@@ -1,11 +1,15 @@
 package com.example.rormcustomer.models
 
 data class PromotionItem(
-    val promotionName: String? = null,
-    val promotionPoints: String? = null,
-    val promotionDescription: String? = null,
-    val promotionTnc: String? = null,
-    val promotionStart: String? = null,
-    val promotionEnd: String? = null,
-    val promotionImage: String? = null
+    val promotionId: String = "",
+    val name: String = "",
+    val description: String = "",
+    val termsAndConditions: String = "",
+    val discount: String = "",
+    val startDate: String = "",
+    val endDate: String = "",
+    val image: String = "",
+    val userId: String = "",
+    val restaurantId: String = "",
+    var available: Boolean = true
 )

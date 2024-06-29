@@ -32,14 +32,16 @@ class ActiveRewardsFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        val activeRewardName = listOf("RM5 off", "RM10 off", "10% off")
+/*        val activeRewardName = listOf("RM5 off", "RM10 off", "10% off")
         val expiredDate = listOf("20/06/2024", "21/06/2024", "22/06/2024")
         val activeRewardImage = listOf(R.drawable.voucher2, R.drawable.voucher2, R.drawable.voucher2)
-        val activeRewardsAdapter = ActiveRewardsAdapter(activeRewardName, expiredDate, activeRewardImage)
+        val activeRewardsAdapter = ActiveRewardsAdapter(activeRewardName, expiredDate, activeRewardImage)*/
 
         binding.activeRewardsRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+/*
             adapter = activeRewardsAdapter
+*/
         }
     }
 

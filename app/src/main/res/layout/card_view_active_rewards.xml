@@ -34,7 +34,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/activeRewardsImage"
+                    android:id="@+id/promotionImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerCrop"
@@ -43,7 +43,7 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/activeRewardName"
+                android:id="@+id/promotionName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -63,11 +63,11 @@
                 android:text="Expired On"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/cardViewImage"
-                app:layout_constraintStart_toStartOf="@+id/activeRewardName"
-                app:layout_constraintTop_toBottomOf="@+id/activeRewardName" />
+                app:layout_constraintStart_toStartOf="@+id/promotionName"
+                app:layout_constraintTop_toBottomOf="@+id/promotionName" />
 
             <TextView
-                android:id="@+id/expiredDate"
+                android:id="@+id/promotionEndDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto"
@@ -78,6 +78,14 @@
                 app:layout_constraintStart_toEndOf="@+id/expiredDateText"
                 app:layout_constraintTop_toTopOf="@+id/expiredDateText" />
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/add_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

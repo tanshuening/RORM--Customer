@@ -88,6 +88,15 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.reservationText.setOnClickListener(reservationClickListener)
         binding.reservationImage.setOnClickListener(reservationClickListener)
 
+        val promotionClickListener = View.OnClickListener {
+            val intent = Intent(this, ActiveRewardsActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.promotions.setOnClickListener(promotionClickListener)
+        binding.promotionsText.setOnClickListener(promotionClickListener)
+        binding.promotionsImage.setOnClickListener(promotionClickListener)
+
     }
 
     private fun loadOrderData() {

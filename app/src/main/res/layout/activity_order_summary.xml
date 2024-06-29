@@ -190,13 +190,14 @@
                     android:background="@android:color/darker_gray" />
 
                 <LinearLayout
+                    android:id="@+id/promotions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/promotions"
+                        android:id="@+id/promotionsText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:drawableLeft="@drawable/voucher3"
@@ -205,6 +206,7 @@
                         android:text="Promotions" />
 
                     <LinearLayout
+                        android:id="@+id/promotionsImage"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="end"
