@@ -15,23 +15,46 @@ class PaymentMethodActivity : AppCompatActivity() {
         binding = ActivityPaymentMethodBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.paymentAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
-/*            val intent = Intent(this, OrderSummaryActivity::class.java)
-            startActivity(intent)*/
-            finish()
+        val currentPaymentMethod = intent.getStringExtra("currentPaymentMethod")
+
+        when (currentPaymentMethod) {
+            "Card" -> binding.cardRadioButton.isChecked = true
+            "Cash" -> binding.cashRadioButton.isChecked = true
         }
 
-        binding.paymentMethodRadioGroup.setOnCheckedChangeListener { group, checkedId ->
-            val selectedPaymentMethod = when (checkedId) {
-                R.id.cashRadioButton -> "Cash"
-                R.id.cardRadioButton -> "Card"
-                else -> ""
-            }
-            // Pass the selected payment method back to OrderSummaryActivity
-            val resultIntent = Intent()
-            resultIntent.putExtra("paymentMethod", selectedPaymentMethod)
-            setResult(RESULT_OK, resultIntent)
-            finish()
+        binding.backButton.setOnClickListener {
+            onBackPressed()
         }
+
+        binding.cardRadioButton.setOnClickListener {
+            returnToOrderSummary("Card")
+        }
+
+        binding.cashRadioButton.setOnClickListener {
+            returnToOrderSummary("Cash")
+        }
+
+        binding.paymentMethodRadioGroup.setOnClickListener {
+            val selectedPaymentMethod = when {
+                binding.cardRadioButton.isChecked -> "Card"
+                binding.cashRadioButton.isChecked -> "Cash"
+                else -> null
+            }
+
+            if (selectedPaymentMethod != null) {
+                returnToOrderSummary(selectedPaymentMethod)
+            } else {
+                // Handle case where no payment method is selected
+                // Optionally show a message or handle the error condition
+            }
+        }
+    }
+
+    private fun returnToOrderSummary(paymentMethod: String) {
+        val resultIntent = Intent().apply {
+            putExtra("paymentMethod", paymentMethod)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }

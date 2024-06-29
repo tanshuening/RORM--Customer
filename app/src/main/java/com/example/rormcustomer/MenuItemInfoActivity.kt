@@ -37,7 +37,6 @@ class MenuItemInfoActivity : AppCompatActivity() {
         if (menuItemName != null) {
             val restaurantId = intent.getStringExtra("restaurantId")
             if (restaurantId != null) {
-                // Fetch the menu item details based on name
                 menuItemRef = database.getReference("restaurants").child(restaurantId).child("menu")
                 retrieveAndDisplayMenuItem(menuItemName)
             } else {

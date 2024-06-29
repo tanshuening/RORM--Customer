@@ -10,6 +10,7 @@ data class Order(
     val orderStatus: String = "Pending",
     val orderDate: String = "",
     val specialRequests: String? = null,
-    val paymentMethod: String = "Card",
-    val deliveryAddress: String? = null
+    val paymentMethod: String = "",
+    val reservationDetails: String = "",
+    val promotion: String = ""
 )

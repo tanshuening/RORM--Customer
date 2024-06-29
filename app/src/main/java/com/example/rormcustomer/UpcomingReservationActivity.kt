@@ -58,7 +58,7 @@ class UpcomingReservationActivity : AppCompatActivity() {
 
 
         binding.reservationAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
-            onBackPressed()
+            finish()
         }
 
         loadReservations()

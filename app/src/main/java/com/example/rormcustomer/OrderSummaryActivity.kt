@@ -1,5 +1,6 @@
 package com.example.rormcustomer
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,8 +13,7 @@ import com.example.rormcustomer.databinding.ActivityOrderSummaryBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class OrderSummaryActivity : AppCompatActivity() {
 
@@ -27,6 +27,8 @@ class OrderSummaryActivity : AppCompatActivity() {
     private val prices = mutableListOf<Double>()
     private val quantities = mutableListOf<Int>()
     private var restaurantId: String? = null
+    private var orderId: String? = null
+    private var paymentMethod: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,15 +64,13 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.orderSummaryRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.orderSummaryRecyclerView.adapter = adapter
 
-        loadOrderData()
-        loadRestaurantName()
-
         binding.orderSummaryAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
             onBackPressed()
         }
 
         val paymentClickListener = View.OnClickListener {
             val intent = Intent(this, PaymentMethodActivity::class.java)
+            intent.putExtra("currentPaymentMethod", paymentMethod)
             startActivityForResult(intent, PAYMENT_METHOD_REQUEST_CODE)
         }
 
@@ -98,11 +98,23 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.promotionsText.setOnClickListener(promotionClickListener)
         binding.promotionsImage.setOnClickListener(promotionClickListener)
 
-        // Update promotionsText with the applied promotion name if available
-        val appliedPromotionName = intent.getStringExtra("promotionName")
-        if (!appliedPromotionName.isNullOrEmpty()) {
-            binding.promotionsText.text = appliedPromotionName
+        // Load saved promotion name from SharedPreferences
+        val sharedPref = getPreferences(Context.MODE_PRIVATE)
+        val savedPromotionName = sharedPref.getString("promotionName", null)
+        if (!savedPromotionName.isNullOrEmpty()) {
+            binding.promotionsText.text = savedPromotionName
         }
+
+        if (savedInstanceState != null) {
+            paymentMethod = savedInstanceState.getString("paymentMethod")
+        } else {
+            loadPaymentMethodFromDatabase()
+        }
+
+        binding.paymentMethodText.text = paymentMethod ?: "Payment Method"
+
+        loadOrderData()
+        loadRestaurantName()
     }
 
     private fun loadOrderData() {
@@ -115,6 +127,7 @@ class OrderSummaryActivity : AppCompatActivity() {
                 for (orderSnapshot in snapshot.children) {
                     val restaurantIdFromDb = orderSnapshot.child("restaurantId").getValue(String::class.java)
                     if (restaurantIdFromDb == restaurantId) {
+                        orderId = orderSnapshot.key
                         val itemsSnapshot = orderSnapshot.child("items")
                         for (itemSnapshot in itemsSnapshot.children) {
                             val item = itemSnapshot.child("foodName").getValue(String::class.java)
@@ -125,6 +138,9 @@ class OrderSummaryActivity : AppCompatActivity() {
                             price?.let { prices.add(it) }
                             quantity?.let { quantities.add(it) }
                         }
+
+                        paymentMethod = orderSnapshot.child("paymentMethod").getValue(String::class.java)
+                        binding.paymentMethodText.text = paymentMethod ?: "Select Payment Method"
                     }
                 }
 
@@ -156,11 +172,44 @@ class OrderSummaryActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadPaymentMethodFromDatabase() {
+        orderId?.let { id ->
+            val orderRef = database.getReference("orders").child(id)
+            orderRef.child("paymentMethod").get().addOnSuccessListener { snapshot ->
+                paymentMethod = snapshot.getValue(String::class.java)
+                binding.paymentMethodText.text = paymentMethod ?: "Payment Method"
+            }.addOnFailureListener {
+                Log.e("OrderSummaryActivity", "Failed to load payment method", it)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("paymentMethod", paymentMethod)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PAYMENT_METHOD_REQUEST_CODE && resultCode == RESULT_OK) {
-            val paymentMethod = data?.getStringExtra("paymentMethod")
+            paymentMethod = data?.getStringExtra("paymentMethod")
             binding.paymentMethodText.text = paymentMethod
+            savePaymentMethodToDatabase(paymentMethod)
+        }
+    }
+
+    private fun savePaymentMethodToDatabase(paymentMethod: String?) {
+        if (orderId != null && paymentMethod != null) {
+            val orderRef = database.getReference("orders").child(orderId!!)
+            orderRef.child("paymentMethod").setValue(paymentMethod)
+                .addOnSuccessListener {
+                    Log.d("OrderSummaryActivity", "Payment method updated successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("OrderSummaryActivity", "Failed to update payment method", e)
+                }
+        } else {
+            Log.e("OrderSummaryActivity", "Order ID or payment method is null")
         }
     }
 

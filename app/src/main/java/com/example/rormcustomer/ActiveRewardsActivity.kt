@@ -1,22 +1,16 @@
 package com.example.rormcustomer
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.example.rormcustomer.adapter.ActiveRewardsAdapter
-import com.example.rormcustomer.adapter.UpcomingReservationAdapter
 import com.example.rormcustomer.databinding.ActivityActiveRewardsBinding
-import com.example.rormcustomer.databinding.ActivityMyRewardsBinding
-import com.example.rormcustomer.databinding.ActivityRewardsBinding
-import com.example.rormcustomer.databinding.ActivityUpcomingReservationBinding
 import com.example.rormcustomer.models.PromotionItem
-import com.example.rormcustomer.models.Reservation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.text.ParseException
@@ -69,7 +63,7 @@ class ActiveRewardsActivity : AppCompatActivity() {
         binding.rewardsRecyclerView.adapter = adapter
 
         binding.appBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
-            onBackPressed()
+            finish()
         }
 
         loadPromotions()
@@ -83,12 +77,49 @@ class ActiveRewardsActivity : AppCompatActivity() {
                 val viewHolder = binding.rewardsRecyclerView.findViewHolderForAdapterPosition(position) as? ActiveRewardsAdapter.ActiveRewardsViewHolder
                 viewHolder?.binding?.addButton?.setImageResource(R.drawable.check_button)
 
-                // Navigate to OrderSummaryActivity with restaurantId and promotionName
-                val intent = Intent(this, OrderSummaryActivity::class.java).apply {
+                // Save promotion ID to the database
+                val userId = auth.currentUser?.uid ?: return@setPositiveButton
+                val orderRef = database.getReference("orders").orderByChild("userId").equalTo(userId)
+                orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (orderSnapshot in snapshot.children) {
+                            val restaurantIdFromDb = orderSnapshot.child("restaurantId").getValue(String::class.java)
+                            if (restaurantIdFromDb == restaurantId) {
+                                val orderId = orderSnapshot.key ?: continue
+                                database.getReference("orders/$orderId/promotion").setValue(promotion.promotionId)
+                                    .addOnSuccessListener {
+                                        Log.d("ActiveRewardsActivity", "Promotion ID saved successfully")
+                                    }
+                                    .addOnFailureListener { error ->
+                                        Log.e("ActiveRewardsActivity", "Error saving promotion ID: ${error.message}")
+                                    }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("ActiveRewardsActivity", "Error saving promotion ID: ${error.message}")
+                    }
+                })
+
+                // Save promotion name to SharedPreferences
+                val sharedPref = getSharedPreferences("order_summary_prefs", Context.MODE_PRIVATE)
+                with(sharedPref.edit()) {
+                    putString("promotionName", promotion.name)
+                    apply()
+                }
+
+                // Navigate to OrderSummaryActivity with restaurantId, promotionName, and booking details
+                val intent = Intent(this@ActiveRewardsActivity, OrderSummaryActivity::class.java).apply {
                     putExtra("restaurantId", restaurantId)
+                    putExtra("promotionId", promotion.promotionId)
                     putExtra("promotionName", promotion.name)
+                    putExtra("numOfPax", intent.getIntExtra("numOfPax", 0))
+                    putExtra("bookingTime", intent.getStringExtra("bookingTime"))
+                    putExtra("bookingDate", intent.getLongExtra("bookingDate", 0L))
                 }
                 startActivity(intent)
+                finish() // Optional: finish the current activity if you don't want to return to it
             }
             .setNegativeButton("Cancel", null)
             .create()
