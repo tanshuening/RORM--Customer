@@ -1,5 +1,6 @@
 package com.example.rormcustomer
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
@@ -43,9 +44,18 @@ class UpcomingReservationActivity : AppCompatActivity() {
             return
         }
 
-        adapter = UpcomingReservationAdapter(reservations, restaurantName, restaurantImage)
+        adapter = UpcomingReservationAdapter(reservations, restaurantName, restaurantImage) { reservation ->
+            val intent = Intent(this, OrderSummaryActivity::class.java).apply {
+                putExtra("restaurantId", restaurantId)
+                putExtra("numOfPax", reservation.numOfPax)
+                putExtra("bookingDate", reservation.date)
+                putExtra("bookingTime", reservation.timeSlot)
+            }
+            startActivity(intent)
+        }
         binding.reservationRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.reservationRecyclerView.adapter = adapter
+
 
         binding.reservationAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
             onBackPressed()

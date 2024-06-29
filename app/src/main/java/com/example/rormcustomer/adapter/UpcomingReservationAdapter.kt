@@ -13,7 +13,8 @@ import java.util.Locale
 class UpcomingReservationAdapter(
     private val reservations: List<Reservation>,
     private var restaurantName: String?,
-    private var restaurantImage: String?
+    private var restaurantImage: String?,
+    private val onReservationClick: (Reservation) -> Unit
 ) : RecyclerView.Adapter<UpcomingReservationAdapter.UpcomingReservationViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UpcomingReservationViewHolder {
@@ -24,6 +25,9 @@ class UpcomingReservationAdapter(
     override fun onBindViewHolder(holder: UpcomingReservationViewHolder, position: Int) {
         val reservation = reservations[position]
         holder.bind(reservation, restaurantName, restaurantImage)
+        holder.itemView.setOnClickListener {
+            onReservationClick(reservation)
+        }
     }
 
     override fun getItemCount(): Int {

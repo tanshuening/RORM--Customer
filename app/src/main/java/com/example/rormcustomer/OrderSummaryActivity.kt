@@ -11,6 +11,9 @@ import com.example.rormcustomer.adapter.OrderSummaryMenuItemAdapter
 import com.example.rormcustomer.databinding.ActivityOrderSummaryBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class OrderSummaryActivity : AppCompatActivity() {
 
@@ -41,6 +44,16 @@ class OrderSummaryActivity : AppCompatActivity() {
             finish()
             return
         }
+
+        val numOfPax = intent.getIntExtra("numOfPax", 0)
+        val bookingDate = intent.getLongExtra("bookingDate", 0L)
+        val bookingTime = intent.getStringExtra("bookingTime")
+
+        if (numOfPax != 0 && bookingDate != 0L && bookingTime != null) {
+            val dateFormatted = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(bookingDate))
+            binding.reservationText.text = "$numOfPax pax, $dateFormatted, $bookingTime"
+        }
+
         orderQuery = database.getReference("orders").orderByChild("userId").equalTo(userId)
         restaurantRef = database.getReference("restaurants").child(restaurantId!!)
 
