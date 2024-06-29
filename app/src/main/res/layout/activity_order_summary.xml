@@ -247,13 +247,14 @@
                     android:background="@android:color/darker_gray" />
 
                 <LinearLayout
+                    android:id="@+id/reservation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/reservation"
+                        android:id="@+id/reservationText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:drawableLeft="@drawable/reserve"
@@ -262,6 +263,7 @@
                         android:text="Reservation" />
 
                     <LinearLayout
+                        android:id="@+id/reservationImage"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="end"

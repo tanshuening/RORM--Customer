@@ -64,6 +64,17 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.paymentMethod.setOnClickListener(paymentClickListener)
         binding.paymentMethodText.setOnClickListener(paymentClickListener)
         binding.paymentMethodImage.setOnClickListener(paymentClickListener)
+
+        val reservationClickListener = View.OnClickListener {
+            val intent = Intent(this, UpcomingReservationActivity::class.java)
+            intent.putExtra("restaurantId", restaurantId)
+            startActivity(intent)
+        }
+
+        binding.reservation.setOnClickListener(reservationClickListener)
+        binding.reservationText.setOnClickListener(reservationClickListener)
+        binding.reservationImage.setOnClickListener(reservationClickListener)
+
     }
 
     private fun loadOrderData() {
