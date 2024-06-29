@@ -9,7 +9,7 @@
     tools:context=".ActiveRewardsActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/rewardsAppBarLayout"
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,5 +51,5 @@
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rewardsAppBarLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>

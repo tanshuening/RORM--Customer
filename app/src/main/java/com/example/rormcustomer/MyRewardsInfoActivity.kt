@@ -1,9 +1,8 @@
 package com.example.rormcustomer
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.rormcustomer.databinding.ActivityMyRewardsInfoBinding
 
 class MyRewardsInfoActivity : AppCompatActivity() {
@@ -15,27 +14,31 @@ class MyRewardsInfoActivity : AppCompatActivity() {
         binding = ActivityMyRewardsInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setting up the back button
-        binding.myRewardsInfoAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
-            val intent = Intent(this, RewardsActivity::class.java)
-            startActivity(intent)
+        // Set up toolbar back button
+        binding.backButton.setOnClickListener {
+            finish()
         }
 
-        // Setting the data
-        val rewardName = "Sample Reward"
-        val image = R.drawable.voucher2
-        val points = "1500"
-        val startDate = "2024-01-01"
-        val endDate = "2024-12-31"
-        val description = "This is a sample reward description."
-        val tnc = "These are the terms and conditions."
+        // Retrieve data from Intent
+        val promotionName = intent.getStringExtra("promotionName")
+        val promotionDescription = intent.getStringExtra("promotionDescription")
+        val promotionTnc = intent.getStringExtra("promotionTnc")
+        val promotionDiscount = intent.getStringExtra("promotionDiscount")
+        val promotionStartDate = intent.getStringExtra("promotionStartDate")
+        val promotionEndDate = intent.getStringExtra("promotionEndDate")
+        val promotionImage = intent.getStringExtra("promotionImage")
 
-        binding.myRewardName.text = rewardName
-        binding.myRewardsImage.setImageResource(image)
-        binding.loyaltyPoints.text = points
-        binding.validityStartDate.text = startDate
-        binding.validityEndDate.text = endDate
-        binding.description.text = description
-        binding.tnc.text = tnc
+        // Set data to views
+        binding.myRewardName.text = promotionName
+        binding.loyaltyPoints.text = promotionDiscount
+        binding.validityStartDate.text = promotionStartDate
+        binding.validityEndDate.text = promotionEndDate
+        binding.description.text = promotionDescription
+        binding.tnc.text = promotionTnc
+
+        // Load the image using Glide
+        if (!promotionImage.isNullOrEmpty()) {
+            Glide.with(this).load(promotionImage).into(binding.myRewardsImage)
+        }
     }
 }

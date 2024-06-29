@@ -31,7 +31,7 @@ class BookingFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        restaurantId = (activity as RestaurantInfoActivity).getRestaurantId()
+        restaurantId = arguments?.getString("RestaurantId") ?: ""
         Log.d("BookingFragment", "Retrieved RestaurantId: $restaurantId")
     }
 

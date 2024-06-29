@@ -90,6 +90,7 @@ class OrderSummaryActivity : AppCompatActivity() {
 
         val promotionClickListener = View.OnClickListener {
             val intent = Intent(this, ActiveRewardsActivity::class.java)
+            intent.putExtra("restaurantId", restaurantId)
             startActivity(intent)
         }
 

@@ -5,11 +5,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rormcustomer.databinding.CardViewActiveRewardsBinding
+import com.example.rormcustomer.models.PromotionItem
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ActiveRewardsAdapter(
-    private val promotionNames: List<String>,
-    private val promotionEndDates: List<String>,
-    private val promotionImages: List<String>
+    private val promotions: List<PromotionItem>,
+    private var promotionName: String?,
+    private var promotionImage: String?,
+    private val onPromotionClick: (PromotionItem) -> Unit
 ) : RecyclerView.Adapter<ActiveRewardsAdapter.ActiveRewardsViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActiveRewardsViewHolder {
@@ -18,23 +23,38 @@ class ActiveRewardsAdapter(
     }
 
     override fun onBindViewHolder(holder: ActiveRewardsViewHolder, position: Int) {
-        val promotionName = promotionNames[position]
-        val promotionEndDate = promotionEndDates[position]
-        val promotionImage = promotionImages[position]
-        holder.bind(promotionName, promotionEndDate, promotionImage)
+        val promotion = promotions[position]
+        holder.bind(promotion, promotionName, promotionImage)
+        holder.itemView.setOnClickListener {
+            onPromotionClick(promotion)
+        }
     }
 
     override fun getItemCount(): Int {
-        return promotionNames.size
+        return promotions.size
+    }
+
+    fun updatePromotionDetails(name: String?, image: String?) {
+        promotionName = name
+        promotionImage = image
+        notifyDataSetChanged()
     }
 
     class ActiveRewardsViewHolder(private val binding: CardViewActiveRewardsBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(name: String, date: String, image: String) {
-            binding.promotionName.text = name
-            binding.promotionEndDate.text = date
-            Glide.with(binding.promotionImage.context).load(image).into(binding.promotionImage)
+        fun bind(promotion: PromotionItem, promotionName: String?, image: String?) {
+            binding.promotionName.text = promotionName ?: promotion.name
+            binding.promotionEndDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
+                Date(promotion.endDate)
+            )
+
+            val imageUrl = image ?: promotion.image
+            if (imageUrl != null) {
+                Glide.with(binding.root.context)
+                    .load(imageUrl)
+                    .into(binding.promotionImage)
+            }
         }
     }
 }

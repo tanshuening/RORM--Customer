@@ -42,6 +42,12 @@ class RestaurantInfoActivity : AppCompatActivity() {
         restaurantId = intent.getStringExtra("RestaurantId") ?: ""
         Log.d("RestaurantInfoActivity", "Retrieved RestaurantId: $restaurantId")
 
+        if (restaurantId.isEmpty()) {
+            Log.e("RestaurantInfoActivity", "RestaurantId is not provided")
+            finish()
+            return
+        }
+
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -90,18 +96,26 @@ class RestaurantInfoActivity : AppCompatActivity() {
             viewPager = findViewById(R.id.viewPager)
             val adapter = ViewPagerAdapter(supportFragmentManager, restaurantId)
 
-            adapter.addFrag(BookingFragment(), "Booking")
+            val bookingFragment = BookingFragment().apply {
+                arguments = Bundle().apply {
+                    putString("RestaurantId", restaurantId)
+                }
+            }
+            adapter.addFrag(bookingFragment, "Booking")
 
             val menuFragment = MenuFragment().apply {
                 arguments = Bundle().apply {
-                    putString("RestaurantId", restaurantId) }
+                    putString("RestaurantId", restaurantId)
+                }
             }
             adapter.addFrag(menuFragment, "Menu")
 
             adapter.addFrag(ReviewsFragment(), "Review")
 
             val detailsFragment = DetailsFragment().apply {
-                arguments = Bundle().apply { putString("RestaurantId", restaurantId) }
+                arguments = Bundle().apply {
+                    putString("RestaurantId", restaurantId)
+                }
             }
             adapter.addFrag(detailsFragment, "Details")
 

@@ -1,13 +1,24 @@
 package com.example.rormcustomer
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.rormcustomer.adapter.ActiveRewardsAdapter
+import com.example.rormcustomer.adapter.UpcomingReservationAdapter
 import com.example.rormcustomer.databinding.ActivityActiveRewardsBinding
+import com.example.rormcustomer.databinding.ActivityMyRewardsBinding
+import com.example.rormcustomer.databinding.ActivityRewardsBinding
+import com.example.rormcustomer.databinding.ActivityUpcomingReservationBinding
+import com.example.rormcustomer.models.PromotionItem
+import com.example.rormcustomer.models.Reservation
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -15,10 +26,14 @@ class ActiveRewardsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityActiveRewardsBinding
     private lateinit var database: FirebaseDatabase
-    private lateinit var promotionsQuery: Query
-    private val promotionNames = mutableListOf<String>()
-    private val promotionEndDates = mutableListOf<String>()
-    private val promotionImages = mutableListOf<String>()
+    private lateinit var auth: FirebaseAuth
+    private lateinit var promotionQuery: Query
+    private lateinit var restaurantRef: DatabaseReference
+    private val promotions = mutableListOf<PromotionItem>()
+    private lateinit var adapter: ActiveRewardsAdapter
+    private var restaurantId: String? = null
+    private var promotionName: String? = null
+    private var promotionImage: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,42 +41,64 @@ class ActiveRewardsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         database = FirebaseDatabase.getInstance()
-        promotionsQuery = database.getReference("restaurants").child("-O0EyC4lJG3bf5EJgliM").child("promotion")
+        auth = FirebaseAuth.getInstance()
 
+        restaurantId = intent.getStringExtra("restaurantId")
+        if (restaurantId == null) {
+            Log.e("ActiveRewardsActivity", "Restaurant ID is null")
+            finish()
+            return
+        }
+
+        adapter = ActiveRewardsAdapter(promotions, promotionName, promotionImage) { promotion ->
+            val intent = Intent(this, MyRewardsInfoActivity::class.java).apply {
+                putExtra("promotionName", promotion.name)
+                putExtra("promotionDescription", promotion.description)
+                putExtra("promotionTnc", promotion.termsAndConditions)
+                putExtra("promotionDiscount", promotion.discount)
+                putExtra("promotionStartDate", promotion.startDate)
+                putExtra("promotionEndDate", promotion.endDate)
+                putExtra("promotionImage", promotion.image)
+            }
+            startActivity(intent)
+        }
         binding.rewardsRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.rewardsRecyclerView.adapter = ActiveRewardsAdapter(promotionNames, promotionEndDates, promotionImages)
+        binding.rewardsRecyclerView.adapter = adapter
 
-        loadPromotions()
 
-        binding.rewardsAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
+        binding.appBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
             onBackPressed()
         }
+
+        loadPromotions()
     }
 
     private fun loadPromotions() {
-        promotionsQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+        val userId = auth.currentUser?.uid ?: return
+        val currentDate = System.currentTimeMillis()
+        promotionQuery = database.getReference("restaurants/$restaurantId/promotion")
+
+        promotionQuery.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                promotionNames.clear()
-                promotionEndDates.clear()
-                promotionImages.clear()
-
-                val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
-                val currentDateParsed = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(currentDate)
-
+                promotions.clear()
                 for (promotionSnapshot in snapshot.children) {
-                    val endDate = promotionSnapshot.child("endDate").getValue(String::class.java)
-                    val endDateParsed = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(endDate)
-                    if (endDateParsed != null && endDateParsed.after(currentDateParsed)) {
-                        val name = promotionSnapshot.child("name").getValue(String::class.java)
-                        val image = promotionSnapshot.child("image").getValue(String::class.java)
+                    val promotionItem = promotionSnapshot.getValue(PromotionItem::class.java)
+                    promotionItem?.let {
+                        try {
+                            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            val startDate = dateFormat.parse(it.startDate)?.time ?: 0
+                            val endDate = dateFormat.parse(it.endDate)?.time ?: 0
+                            if (currentDate in startDate..endDate) {
+                                promotions.add(it)
+                            } else {
 
-                        name?.let { promotionNames.add(it) }
-                        endDate?.let { promotionEndDates.add(it) }
-                        image?.let { promotionImages.add(it) }
+                            }
+                        } catch (e: ParseException) {
+                            Log.e("ActiveRewardsActivity", "Error parsing date: ${e.message}")
+                        }
                     }
                 }
-
-                binding.rewardsRecyclerView.adapter?.notifyDataSetChanged()
+                adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
