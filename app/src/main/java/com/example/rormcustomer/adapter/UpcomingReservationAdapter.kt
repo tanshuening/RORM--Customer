@@ -4,57 +4,57 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.rormcustomer.R
 import com.example.rormcustomer.databinding.CardViewUpcomingReservationBinding
 import com.example.rormcustomer.models.Reservation
+import com.example.rormcustomer.models.Restaurant
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class UpcomingReservationAdapter(
     private val reservations: List<Reservation>,
-    private var restaurantName: String?,
-    private var restaurantImage: String?,
-    private val onReservationClick: (Reservation) -> Unit
-) : RecyclerView.Adapter<UpcomingReservationAdapter.UpcomingReservationViewHolder>() {
+    private val restaurant: Restaurant?,
+    private val onItemClick: (Reservation) -> Unit,
+    private val onItemLongClick: (Reservation, Int) -> Unit
+) : RecyclerView.Adapter<UpcomingReservationAdapter.ReservationViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UpcomingReservationViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReservationViewHolder {
         val binding = CardViewUpcomingReservationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return UpcomingReservationViewHolder(binding)
+        return ReservationViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: UpcomingReservationViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ReservationViewHolder, position: Int) {
         val reservation = reservations[position]
-        holder.bind(reservation, restaurantName, restaurantImage)
-        holder.itemView.setOnClickListener {
-            onReservationClick(reservation)
-        }
+        holder.bind(reservation, restaurant)
     }
 
     override fun getItemCount(): Int {
         return reservations.size
     }
 
-    fun updateRestaurantDetails(name: String?, image: String?) {
-        restaurantName = name
-        restaurantImage = image
-        notifyDataSetChanged()
-    }
-
-    class UpcomingReservationViewHolder(private val binding: CardViewUpcomingReservationBinding) :
+    inner class ReservationViewHolder(private val binding: CardViewUpcomingReservationBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(reservation: Reservation, restaurantName: String?, restaurantImage: String?) {
-            binding.restaurantName.text = restaurantName
+        fun bind(reservation: Reservation, restaurant: Restaurant?) {
+            binding.restaurantName.text = restaurant?.name
             binding.bookingNumOfPax.text = reservation.numOfPax.toString()
-            binding.bookingDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
-                Date(reservation.date)
-            )
+            binding.bookingDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(reservation.date))
             binding.bookingTime.text = reservation.timeSlot
 
-            if (restaurantImage != null) {
+            val imageUrl = restaurant?.images?.firstOrNull()
+            imageUrl?.let { url ->
                 Glide.with(binding.root.context)
-                    .load(restaurantImage)
+                    .load(url)
                     .into(binding.restaurantImage)
+            }
+
+            binding.addButton.setOnClickListener {
+                onItemClick(reservation)
+            }
+
+            binding.root.setOnLongClickListener {
+                onItemLongClick(reservation, adapterPosition)
+                true
             }
         }
     }

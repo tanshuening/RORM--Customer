@@ -9,5 +9,6 @@ data class Reservation(
     val numOfPax: Int = 1,
     val specialRequest: String? = null,
     val bookingOccasion: String? = null,
-    val bookingPhone: String? = null
+    val bookingPhone: String? = null,
+    val order: Order? = null
 )

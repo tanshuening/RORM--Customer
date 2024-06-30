@@ -2,8 +2,17 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.RORMCustomer" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/orange_primary</item>
+        <item name="colorPrimaryVariant">@color/orange_primary_variant</item>
+        <item name="colorOnPrimary">@color/white</item> <!-- Text color on your primary color -->
+        <item name="android:navigationBarColor">@color/orange_primary</item> <!-- Navigation bar color -->
     </style>
 
     <style name="Theme.RORMCustomer" parent="Base.Theme.RORMCustomer" />
+
+    <style name="BottomNavigationTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/orange</item>
+        <item name="android:textColorSecondary">@color/lightOrange2</item>
+    </style>
+
 </resources>

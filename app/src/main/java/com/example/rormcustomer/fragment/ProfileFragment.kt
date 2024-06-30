@@ -10,8 +10,12 @@ import android.view.ViewGroup
 import com.example.rormcustomer.AccountActivity
 import com.example.rormcustomer.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class ProfileFragment : Fragment() {
 
@@ -20,11 +24,15 @@ class ProfileFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
+    private lateinit var currentUser: FirebaseUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+        currentUser = auth.currentUser!!
+
+        fetchUserName()
     }
 
     override fun onCreateView(
@@ -50,20 +58,21 @@ class ProfileFragment : Fragment() {
     }
 
     private fun fetchUserName() {
-        val currentUser = auth.currentUser
-        currentUser?.let {
-            val userId = it.uid
-            database.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+        val userId = currentUser.uid
+        database.child("users").child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val userName = snapshot.child("name").value.toString()
                     binding.customerNameText.text = userName
                 } else {
                     Log.e("ProfileFragment", "User does not exist")
                 }
-            }.addOnFailureListener { exception ->
-                Log.e("ProfileFragment", "Error fetching user data", exception)
             }
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileFragment", "Error fetching user data", error.toException())
+            }
+        })
     }
 
     override fun onDestroyView() {

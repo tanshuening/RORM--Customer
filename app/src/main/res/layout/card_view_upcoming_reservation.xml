@@ -125,6 +125,17 @@
                 app:layout_constraintBottom_toBottomOf="@+id/symbol2"
                 app:layout_constraintStart_toEndOf="@+id/symbol2"
                 app:layout_constraintTop_toTopOf="@+id/symbol2" />
+
+            <ImageView
+                android:id="@+id/addButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/add_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

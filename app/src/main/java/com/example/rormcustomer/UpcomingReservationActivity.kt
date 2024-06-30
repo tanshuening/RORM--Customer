@@ -3,31 +3,25 @@ package com.example.rormcustomer
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.example.rormcustomer.adapter.UpcomingReservationAdapter
 import com.example.rormcustomer.databinding.ActivityUpcomingReservationBinding
 import com.example.rormcustomer.models.Reservation
+import com.example.rormcustomer.models.Restaurant
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 class UpcomingReservationActivity : AppCompatActivity() {
-
+/*
     private lateinit var binding: ActivityUpcomingReservationBinding
     private lateinit var database: FirebaseDatabase
+    private lateinit var reservationsRef: DatabaseReference
     private lateinit var auth: FirebaseAuth
-    private lateinit var reservationQuery: Query
-    private lateinit var restaurantRef: DatabaseReference
-    private val reservations = mutableListOf<Reservation>()
     private lateinit var adapter: UpcomingReservationAdapter
-    private var restaurantId: String? = null
-    private var restaurantName: String? = null
-    private var restaurantImage: String? = null
+    private val reservations = mutableListOf<Reservation>()
+    private var selectedReservationId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,81 +31,82 @@ class UpcomingReservationActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
 
-        restaurantId = intent.getStringExtra("restaurantId")
-        if (restaurantId == null) {
-            Log.e("UpcomingReservation", "Restaurant ID is null")
-            finish()
-            return
-        }
+        val userId = auth.currentUser?.uid ?: return
 
-        adapter = UpcomingReservationAdapter(reservations, restaurantName, restaurantImage) { reservation ->
-            val intent = Intent(this, OrderSummaryActivity::class.java).apply {
-                putExtra("restaurantId", restaurantId)
-                putExtra("numOfPax", reservation.numOfPax)
-                putExtra("bookingDate", reservation.date)
-                putExtra("bookingTime", reservation.timeSlot)
+        adapter = UpcomingReservationAdapter(
+            reservations,
+            null,
+            { reservation ->
+                // Handle item click
+                val intent = Intent(this, ReservationInfoActivity::class.java)
+                intent.putExtra("reservationId", reservation.reservationId)
+                intent.putExtra("bookingTime", reservation.timeSlot)
+                intent.putExtra("bookingDate", reservation.date)
+                startActivity(intent)
+            },
+            { reservation, position ->
+                selectedReservationId = reservation.reservationId
+                // Handle item long click (if needed)
             }
-            startActivity(intent)
-        }
+        )
+
         binding.reservationRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.reservationRecyclerView.adapter = adapter
 
+        reservationsRef = database.getReference("reservations")
 
-        binding.reservationAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
-            finish()
+        loadReservations(userId)
+
+        binding.addButton.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Choose reservation ...")
+                .setMessage("Do you want to add this reservation?")
+                .setPositiveButton("Yes") { dialog, which ->
+                    saveReservationToOrderDatabase(selectedReservationId)
+                }
+                .setNegativeButton("No", null)
+                .show()
         }
-
-        loadReservations()
-        loadRestaurantDetails()
     }
 
-    private fun loadReservations() {
-        val userId = auth.currentUser?.uid ?: return
-        val currentTime = System.currentTimeMillis()
-        reservationQuery = database.getReference("reservations")
-            .orderByChild("userId")
-            .equalTo(userId)
-
-        reservationQuery.addValueEventListener(object : ValueEventListener {
+    private fun loadReservations(userId: String) {
+        val query = reservationsRef.orderByChild("userId").equalTo(userId)
+        query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 reservations.clear()
                 for (reservationSnapshot in snapshot.children) {
                     val reservation = reservationSnapshot.getValue(Reservation::class.java)
                     reservation?.let {
-                        if (it.restaurantId == restaurantId && it.date >= currentTime) {
-                            reservations.add(it)
-                        }
+                        reservations.add(it)
                     }
                 }
                 adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("UpcomingReservation", "Error loading reservations: ${error.message}")
+                Log.e("UpcomingReservationActivity", "Error loading reservations: ${error.message}")
             }
         })
     }
 
-    private fun loadRestaurantDetails() {
-        restaurantRef = database.getReference("restaurants").child(restaurantId!!)
-        restaurantRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                restaurantName = snapshot.child("name").getValue(String::class.java)
-                restaurantImage = snapshot.child("image").getValue(String::class.java)
-
-                binding.reservationAppBarLayout.findViewById<TextView>(R.id.restaurantName).text = restaurantName
-                if (restaurantImage != null) {
-                    Glide.with(this@UpcomingReservationActivity)
-                        .load(restaurantImage)
-                        .into(binding.reservationAppBarLayout.findViewById(R.id.restaurantImage))
-                }
-
-                adapter.updateRestaurantDetails(restaurantName, restaurantImage)
+    private fun saveReservationToOrderDatabase(reservationId: String?) {
+        if (reservationId != null) {
+            val orderDatabase = FirebaseDatabase.getInstance().getReference("orders")
+            val newOrderId = orderDatabase.push().key
+            if (newOrderId != null) {
+                val orderData = hashMapOf(
+                    "reservationId" to reservationId,
+                    // Add other necessary fields here
+                )
+                orderDatabase.child(newOrderId).setValue(orderData)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            // Handle success
+                        } else {
+                            // Handle failure
+                        }
+                    }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("UpcomingReservation", "Failed to load restaurant details", error.toException())
-            }
-        })
-    }
+        }
+    }*/
 }

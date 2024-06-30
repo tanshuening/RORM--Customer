@@ -8,4 +8,6 @@
     <color name="lightOrange">#ffc356</color>
     <color name="lightOrange2">#ffd190</color>
     <color name="vividYellow">#ffd91a</color>
+    <color name="orange_primary">#FFA500</color> <!-- Orange primary color -->
+    <color name="orange_primary_variant">#FF8C00</color> <!-- Darker variant of orange primary -->
 </resources>

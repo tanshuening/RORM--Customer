@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rormcustomer.MenuItemInfoActivity
 import com.example.rormcustomer.databinding.CardViewOrderSummaryItemBinding
+import com.example.rormcustomer.models.OrderItem
 
 class OrderSummaryMenuItemAdapter(
     private val items: List<String>,

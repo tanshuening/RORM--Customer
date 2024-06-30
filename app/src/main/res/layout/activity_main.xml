@@ -16,7 +16,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/menu">
+        app:menu="@menu/menu"
+        android:elevation="6dp"
+        android:background="@android:color/transparent">
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 
     <fragment

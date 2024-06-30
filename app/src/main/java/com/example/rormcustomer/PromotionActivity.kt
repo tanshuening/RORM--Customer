@@ -115,9 +115,9 @@ class PromotionActivity : AppCompatActivity() {
                     putExtra("promotionId", promotion.promotionId)
                     putExtra("promotionName", promotion.name)
                     putExtra("promotionDiscount", promotion.discount)
-                    putExtra("numOfPax", intent.getIntExtra("numOfPax", 0))
+/*                    putExtra("numOfPax", intent.getIntExtra("numOfPax", 0))
                     putExtra("bookingTime", intent.getStringExtra("bookingTime"))
-                    putExtra("bookingDate", intent.getLongExtra("bookingDate", 0L))
+                    putExtra("bookingDate", intent.getLongExtra("bookingDate", 0L))*/
                 }
                 startActivity(intent)
                 finish() // Optional: finish the current activity if you don't want to return to it

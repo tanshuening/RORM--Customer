@@ -1,10 +1,10 @@
 package com.example.rormcustomer
 
-import com.google.firebase.database.R
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -34,7 +34,7 @@ class SignActivity : AppCompatActivity() {
 
         // Configure Google Sign-In
         val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("71258768025-tstr9ndsi8j304grjb22l2ctudrgb4hp.apps.googleusercontent.com")
+            .requestIdToken("YOUR_CLIENT_ID_HERE")
             .requestEmail()
             .build()
 
@@ -50,6 +50,11 @@ class SignActivity : AppCompatActivity() {
             val signInIntent = googleSignInClient.signInIntent
             launcher.launch(signInIntent)
         }
+
+        // Load user data if user is already signed in
+        if (auth.currentUser != null) {
+            loadUserData(auth.currentUser!!.uid)
+        }
     }
 
     // Activity result launcher to handle Google Sign-In result
@@ -61,7 +66,8 @@ class SignActivity : AppCompatActivity() {
                 val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
                 auth.signInWithCredential(credential).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        checkUserExistence(account)
+                        val userId = FirebaseAuth.getInstance().currentUser!!.uid
+                        checkUserExistence(account, userId)
                     } else {
                         Toast.makeText(this, "Google sign-in failed", Toast.LENGTH_SHORT).show()
                         Log.e("SignActivity", "Google sign-in failed", task.exception)
@@ -77,21 +83,19 @@ class SignActivity : AppCompatActivity() {
     }
 
     // Check if user exists in the database
-    private fun checkUserExistence(account: GoogleSignInAccount?) {
-        val userId = FirebaseAuth.getInstance().currentUser!!.uid
+    private fun checkUserExistence(account: GoogleSignInAccount?, userId: String) {
         database.child("users").child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
                     // User already exists
                     Log.d("SignActivity", "User already exists")
-                    startActivity(Intent(this@SignActivity, MainActivity::class.java))
                 } else {
                     // New user, save user data
                     Log.d("SignActivity", "New user, saving user data")
-                    saveUserData(account)
+                    saveUserData(account, userId)
                 }
-                // Finish activity here to prevent back navigation
-                finish()
+                // Load user data
+                loadUserData(userId)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -102,22 +106,36 @@ class SignActivity : AppCompatActivity() {
     }
 
     // Save new user data to the database
-    private fun saveUserData(account: GoogleSignInAccount?) {
+    private fun saveUserData(account: GoogleSignInAccount?, userId: String) {
         val user = User(
             name = account?.displayName ?: "",
             email = account?.email ?: "",
             password = "" // Assuming password is not required for Google sign-in users
         )
-        val userId = FirebaseAuth.getInstance().currentUser!!.uid
         database.child("users").child(userId).setValue(user).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.d("SignActivity", "User data saved successfully, starting RegisterRestaurantActivity")
-                startActivity(Intent(this@SignActivity, MainActivity::class.java))
-                // Note: Do not finish here, let the RegisterRestaurantActivity handle its logic
+                Log.d("SignActivity", "User data saved successfully")
             } else {
                 Toast.makeText(this@SignActivity, "Failed to save user data", Toast.LENGTH_SHORT).show()
                 Log.e("SignActivity", "Failed to save user data", task.exception)
             }
         }
+    }
+
+    // Load user data from the database
+    private fun loadUserData(userId: String) {
+        database.child("users").child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val user = dataSnapshot.getValue(User::class.java)
+                if (user != null) {
+                    findViewById<TextView>(R.id.userName).text = user.name
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(this@SignActivity, "Failed to load user data", Toast.LENGTH_SHORT).show()
+                Log.e("SignActivity", "Failed to load user data", databaseError.toException())
+            }
+        })
     }
 }

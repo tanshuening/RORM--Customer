@@ -17,9 +17,11 @@ import com.denzcoskun.imageslider.models.SlideModel
 import com.example.rormcustomer.CartActivity
 import com.example.rormcustomer.R
 import com.example.rormcustomer.adapter.BookingTimeAdapter
+import com.example.rormcustomer.adapter.CuisineAdapter
 import com.example.rormcustomer.adapter.RestaurantAdapter
 import com.example.rormcustomer.databinding.FragmentHomeBinding
 import com.example.rormcustomer.models.Restaurant
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -36,6 +38,7 @@ class HomeFragment : Fragment() {
     private var selectedDate: String? = null
     private var selectedTime: String? = null
     private lateinit var dialog: Dialog
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,15 +51,35 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
         restaurantList = ArrayList()
 
         setupRecyclerViews()
         setupImageSlider()
-        setupFloatingActionButton()
+        //setupFloatingActionButton()
         setupToolbar()
         setupBookingInfoDialog()
         fetchRestaurants()
+        fetchAndDisplayUserName()
+    }
+
+    private fun fetchAndDisplayUserName() {
+        val userId = auth.currentUser?.uid ?: return
+        val userRef = database.reference.child("users").child(userId)
+        userRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val username = snapshot.child("name").getValue(String::class.java)
+                username?.let {
+                    val userNameTextView = binding.root.findViewById<TextView>(R.id.userName)
+                    userNameTextView.text = it
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HomeFragment", "Failed to fetch username", error.toException())
+            }
+        })
     }
 
     private fun fetchRestaurants(selectedLocation: String? = null) {
@@ -126,26 +149,37 @@ class HomeFragment : Fragment() {
 
     private fun setupImageSlider() {
         val imageList = ArrayList<SlideModel>().apply {
-            add(SlideModel(R.drawable.banner1, ScaleTypes.FIT))
-            add(SlideModel(R.drawable.banner1, ScaleTypes.FIT))
-            add(SlideModel(R.drawable.banner1, ScaleTypes.FIT))
+            add(SlideModel(R.drawable.banner2, ScaleTypes.FIT))
+            add(SlideModel(R.drawable.banner3, ScaleTypes.FIT))
+            add(SlideModel(R.drawable.banner4, ScaleTypes.FIT))
         }
 
         binding.imageSlider.setImageList(imageList, ScaleTypes.FIT)
     }
 
     private fun setupRecyclerViews() {
+        // Setting up the recommended restaurants RecyclerView
         binding.recommendedRestaurantRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        val adapter = RestaurantAdapter(restaurantList, true, requireContext())
-        binding.recommendedRestaurantRecyclerView.adapter = adapter
+        val restaurantAdapter = RestaurantAdapter(restaurantList, true, requireContext())
+        binding.recommendedRestaurantRecyclerView.adapter = restaurantAdapter
+
+        // Setting up the cuisine RecyclerView
+        val cuisineName = listOf("Pizza", "Noodle", "Burger")
+        val cuisineImage = listOf(R.drawable.pizza, R.drawable.noodle, R.drawable.burger)
+        val cuisineAdapter = CuisineAdapter(cuisineName, cuisineImage)
+
+        binding.browseByCuisineRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            adapter = cuisineAdapter
+        }
     }
 
-    private fun setupFloatingActionButton() {
+/*    private fun setupFloatingActionButton() {
         binding.fab.setOnClickListener {
             val intent = Intent(activity, CartActivity::class.java)
             startActivity(intent)
         }
-    }
+    }*/
 
     private fun setupBookingInfoDialog() {
         val bookingInfo = binding.root.findViewById<LinearLayout>(R.id.bookingInfo)
@@ -214,47 +248,24 @@ class HomeFragment : Fragment() {
 
     private fun checkAndCloseDialog() {
         if (selectedPax != null && selectedDate != null && selectedTime != null) {
-            val partySizeTextView = binding.root.findViewById<TextView>(R.id.partySize)
-            val dateTextView = binding.root.findViewById<TextView>(R.id.date)
-            val timeTextView = binding.root.findViewById<TextView>(R.id.currentTime)
-
-            partySizeTextView.text = selectedPax
-            dateTextView.text = if (isToday(selectedDate!!)) "Today" else selectedDate
-            timeTextView.text = selectedTime
-
-            dialog.dismiss()
-            // Reset selections for next use
-            selectedPax = null
-            selectedDate = null
-            selectedTime = null
+            val bookingInfoText = "$selectedPax $selectedDate $selectedTime"
+            val bookingInfo = binding.root.findViewById<TextView>(R.id.bookingInfo)
+            bookingInfo.text = bookingInfoText
+            closeDialog()
         }
     }
 
-    private fun isToday(date: String): Boolean {
-        val today = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
-        return date == today
+    private fun closeDialog() {
+        if (::dialog.isInitialized && dialog.isShowing) {
+            dialog.dismiss()
+        }
     }
-
-    /*    private fun setupToolbar() {
-            val locationSpinner = binding.root.findViewById<Spinner>(R.id.locationSpinner)
-            ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.malaysia_states,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                locationSpinner.adapter = adapter
-            }
-
-            setCurrentTime()
-        }*/
 
     private fun setCurrentTime() {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("HH:mm a", Locale.getDefault())
+        val currentTime = dateFormat.format(calendar.time)
         val timeTextView = binding.root.findViewById<TextView>(R.id.currentTime)
-        timeTextView?.text = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
-    }
-
-    private fun closeDialog() {
-        dialog.dismiss()
+        timeTextView.text = currentTime
     }
 }
