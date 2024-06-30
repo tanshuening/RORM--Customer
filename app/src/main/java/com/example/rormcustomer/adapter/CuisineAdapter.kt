@@ -25,12 +25,13 @@ class CuisineAdapter(
         return cuisines.size
     }
 
-    class CuisineViewHolder(private val binding: CardViewCuisineBinding) :
+    inner class CuisineViewHolder(private val binding: CardViewCuisineBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(cuisine: String, image: Int) {
             binding.cuisineName.text = cuisine
             binding.restaurantImage.setImageResource(image)
+            // Add click listener if needed
         }
     }
 }

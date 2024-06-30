@@ -205,6 +205,16 @@
                         android:gravity="center_vertical"
                         android:text="Promotions" />
 
+<!--
+                    <TextView
+                        android:id="@+id/discountAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Discount: 0.0"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:layout_marginTop="8dp" />
+-->
+
                     <LinearLayout
                         android:id="@+id/promotionsImage"
                         android:layout_width="match_parent"

@@ -69,6 +69,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:scrollbars="none"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     android:layout_marginTop="15dp" />
 
                 <LinearLayout
@@ -95,6 +96,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:scrollbars="none"
+                    tools:listitem="@layout/card_view_cuisine"
                     android:layout_marginTop="15dp" />
 
                 <LinearLayout

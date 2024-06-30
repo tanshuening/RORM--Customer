@@ -29,6 +29,7 @@ class OrderSummaryActivity : AppCompatActivity() {
     private var restaurantId: String? = null
     private var orderId: String? = null
     private var paymentMethod: String? = null
+    private var promotionDiscount: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +39,9 @@ class OrderSummaryActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
 
-        val userId = auth.currentUser?.uid ?: return
+        promotionDiscount = intent.getStringExtra("promotionDiscount")?.toDoubleOrNull()
         restaurantId = intent.getStringExtra("restaurantId")
+
         Log.d("OrderSummaryActivity", "Received Restaurant ID: $restaurantId")
         if (restaurantId == null) {
             Log.e("OrderSummaryActivity", "Restaurant ID is null")
@@ -47,6 +49,22 @@ class OrderSummaryActivity : AppCompatActivity() {
             return
         }
 
+        val userId = auth.currentUser?.uid ?: return
+
+        setupReservationDetails()
+        setupRecyclerView()
+        setupClickListeners()
+        loadSavedPromotionName()
+        restorePaymentMethod(savedInstanceState)
+
+        orderQuery = database.getReference("orders").orderByChild("userId").equalTo(userId)
+        restaurantRef = database.getReference("restaurants").child(restaurantId!!)
+
+        loadOrderData()
+        loadRestaurantName()
+    }
+
+    private fun setupReservationDetails() {
         val numOfPax = intent.getIntExtra("numOfPax", 0)
         val bookingDate = intent.getLongExtra("bookingDate", 0L)
         val bookingTime = intent.getStringExtra("bookingTime")
@@ -55,18 +73,17 @@ class OrderSummaryActivity : AppCompatActivity() {
             val dateFormatted = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(bookingDate))
             binding.reservationText.text = "$numOfPax pax, $dateFormatted, $bookingTime"
         }
+    }
 
-        orderQuery = database.getReference("orders").orderByChild("userId").equalTo(userId)
-        restaurantRef = database.getReference("restaurants").child(restaurantId!!)
-
+    private fun setupRecyclerView() {
         adapter = OrderSummaryMenuItemAdapter(items, prices, quantities, restaurantId!!)
-
         binding.orderSummaryRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.orderSummaryRecyclerView.adapter = adapter
+    }
 
-        binding.orderSummaryAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
-            onBackPressed()
-        }
+    private fun setupClickListeners() {
+        val backClickListener = View.OnClickListener { onBackPressed() }
+        binding.orderSummaryAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener(backClickListener)
 
         val paymentClickListener = View.OnClickListener {
             val intent = Intent(this, PaymentMethodActivity::class.java)
@@ -89,7 +106,7 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.reservationImage.setOnClickListener(reservationClickListener)
 
         val promotionClickListener = View.OnClickListener {
-            val intent = Intent(this, ActiveRewardsActivity::class.java)
+            val intent = Intent(this, PromotionActivity::class.java)
             intent.putExtra("restaurantId", restaurantId)
             startActivity(intent)
         }
@@ -97,24 +114,20 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.promotions.setOnClickListener(promotionClickListener)
         binding.promotionsText.setOnClickListener(promotionClickListener)
         binding.promotionsImage.setOnClickListener(promotionClickListener)
+    }
 
-        // Load saved promotion name from SharedPreferences
+    private fun loadSavedPromotionName() {
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
         val savedPromotionName = sharedPref.getString("promotionName", null)
-        if (!savedPromotionName.isNullOrEmpty()) {
-            binding.promotionsText.text = savedPromotionName
+        savedPromotionName?.let {
+            binding.promotionsText.text = it
         }
+    }
 
-        if (savedInstanceState != null) {
-            paymentMethod = savedInstanceState.getString("paymentMethod")
-        } else {
-            loadPaymentMethodFromDatabase()
-        }
-
+    private fun restorePaymentMethod(savedInstanceState: Bundle?) {
+        paymentMethod = savedInstanceState?.getString("paymentMethod")
+            ?: loadPaymentMethodFromDatabase()
         binding.paymentMethodText.text = paymentMethod ?: "Payment Method"
-
-        loadOrderData()
-        loadRestaurantName()
     }
 
     private fun loadOrderData() {
@@ -130,13 +143,9 @@ class OrderSummaryActivity : AppCompatActivity() {
                         orderId = orderSnapshot.key
                         val itemsSnapshot = orderSnapshot.child("items")
                         for (itemSnapshot in itemsSnapshot.children) {
-                            val item = itemSnapshot.child("foodName").getValue(String::class.java)
-                            val price = itemSnapshot.child("foodPrice").getValue(String::class.java)?.toDouble()
-                            val quantity = itemSnapshot.child("quantity").getValue(Int::class.java)
-
-                            item?.let { items.add(it) }
-                            price?.let { prices.add(it) }
-                            quantity?.let { quantities.add(it) }
+                            itemSnapshot.child("foodName").getValue(String::class.java)?.let { items.add(it) }
+                            itemSnapshot.child("foodPrice").getValue(String::class.java)?.toDoubleOrNull()?.let { prices.add(it) }
+                            itemSnapshot.child("quantity").getValue(Int::class.java)?.let { quantities.add(it) }
                         }
 
                         paymentMethod = orderSnapshot.child("paymentMethod").getValue(String::class.java)
@@ -155,33 +164,40 @@ class OrderSummaryActivity : AppCompatActivity() {
     }
 
     private fun calculateTotals() {
-        var subtotal = 0.0
-        for (i in prices.indices) {
-            subtotal += prices[i] * quantities[i]
-        }
+        var subtotal = prices.zip(quantities).sumOf { it.first * it.second }
+
         binding.subtotalAmount.text = String.format("%.2f", subtotal)
-        binding.totalAmount.text = String.format("%.2f", subtotal)
+
+        val total = promotionDiscount?.let { discount ->
+            subtotal - (subtotal * discount / 100)
+        } ?: subtotal
+
+        binding.totalAmount.text = String.format("%.2f", total)
+        //binding.discountAmount.text = String.format("%.2f", promotionDiscount ?: 0.0)
     }
 
     private fun loadRestaurantName() {
         restaurantRef.child("name").get().addOnSuccessListener { snapshot ->
-            val restaurantName = snapshot.getValue(String::class.java)
-            binding.restaurantName.text = restaurantName
+            snapshot.getValue(String::class.java)?.let {
+                binding.restaurantName.text = it
+            }
         }.addOnFailureListener {
             Log.e("OrderSummaryActivity", "Failed to load restaurant name", it)
         }
     }
 
-    private fun loadPaymentMethodFromDatabase() {
+    private fun loadPaymentMethodFromDatabase(): String? {
+        var paymentMethodFromDb: String? = null
         orderId?.let { id ->
             val orderRef = database.getReference("orders").child(id)
             orderRef.child("paymentMethod").get().addOnSuccessListener { snapshot ->
-                paymentMethod = snapshot.getValue(String::class.java)
-                binding.paymentMethodText.text = paymentMethod ?: "Payment Method"
+                paymentMethodFromDb = snapshot.getValue(String::class.java)
+                binding.paymentMethodText.text = paymentMethodFromDb ?: "Payment Method"
             }.addOnFailureListener {
                 Log.e("OrderSummaryActivity", "Failed to load payment method", it)
             }
         }
+        return paymentMethodFromDb
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

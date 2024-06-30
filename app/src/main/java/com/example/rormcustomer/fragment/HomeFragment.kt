@@ -235,19 +235,19 @@ class HomeFragment : Fragment() {
         return date == today
     }
 
-/*    private fun setupToolbar() {
-        val locationSpinner = binding.root.findViewById<Spinner>(R.id.locationSpinner)
-        ArrayAdapter.createFromResource(
-            requireContext(),
-            R.array.malaysia_states,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            locationSpinner.adapter = adapter
-        }
+    /*    private fun setupToolbar() {
+            val locationSpinner = binding.root.findViewById<Spinner>(R.id.locationSpinner)
+            ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.malaysia_states,
+                android.R.layout.simple_spinner_item
+            ).also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                locationSpinner.adapter = adapter
+            }
 
-        setCurrentTime()
-    }*/
+            setCurrentTime()
+        }*/
 
     private fun setCurrentTime() {
         val timeTextView = binding.root.findViewById<TextView>(R.id.currentTime)

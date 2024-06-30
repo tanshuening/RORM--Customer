@@ -2,12 +2,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".RewardsInfoActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/rewardsInfoAppBarLayout"
+        android:id="@+id/rewardsAppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,16 +27,6 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
                 android:src="@drawable/back_arrow" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="50dp"
-                android:fontFamily="@font/roboto"
-                android:gravity="center_vertical"
-                android:text="Rewards"
-                android:textColor="@color/black"
-                android:textSize="22sp" />
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -46,7 +36,7 @@
         android:layout_height="150dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rewardsInfoAppBarLayout">
+        app:layout_constraintTop_toBottomOf="@+id/rewardsAppBarLayout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -65,7 +55,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/rewardsImage"
+                    android:id="@+id/myRewardsImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -74,7 +64,7 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/rewardName"
+                android:id="@+id/myRewardName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -125,7 +115,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Points" />
+                        android:text="Discount" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -146,7 +136,7 @@
                             android:layout_height="match_parent"
                             android:layout_marginStart="4dp"
                             android:fontFamily="@font/roboto"
-                            android:text="Points"
+                            android:text="%"
                             android:textSize="12sp" />
 
                     </LinearLayout>
@@ -210,7 +200,7 @@
                 android:background="@android:color/darker_gray" />
 
             <LinearLayout
-                android:id="@+id/rewardsInfo"
+                android:id="@+id/myRewardsInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="16dp"
@@ -265,13 +255,13 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/redeemButton"
+            android:id="@+id/useButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/orange_button"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
-            android:text="Redeem"
+            android:text="Use Now"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="16sp" />
