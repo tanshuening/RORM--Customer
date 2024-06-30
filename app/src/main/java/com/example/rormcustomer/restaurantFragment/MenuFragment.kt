@@ -109,9 +109,11 @@ class MenuFragment : Fragment(), MenuItemAdapter.OnItemClickListener {
 
     override fun onItemClick(menuItem: MenuItem) {
         val intent = Intent(requireContext(), MenuItemInfoActivity::class.java).apply {
-            putExtra("menuItemId", menuItem.foodId)
+            putExtra("menuItemName", menuItem.foodName)
             putExtra("restaurantId", menuItem.restaurantId)
+            putExtra("isEdit", false)  // Assuming default is adding to basket, not editing
         }
         startActivity(intent)
     }
+
 }

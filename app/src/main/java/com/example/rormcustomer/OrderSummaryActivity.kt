@@ -141,10 +141,10 @@ class OrderSummaryActivity : AppCompatActivity() {
                     val restaurantIdFromDb = orderSnapshot.child("restaurantId").getValue(String::class.java)
                     if (restaurantIdFromDb == restaurantId) {
                         orderId = orderSnapshot.key
-                        val itemsSnapshot = orderSnapshot.child("items")
+                        val itemsSnapshot = orderSnapshot.child("orderItems")
                         for (itemSnapshot in itemsSnapshot.children) {
-                            itemSnapshot.child("foodName").getValue(String::class.java)?.let { items.add(it) }
-                            itemSnapshot.child("foodPrice").getValue(String::class.java)?.toDoubleOrNull()?.let { prices.add(it) }
+                            itemSnapshot.child("itemName").getValue(String::class.java)?.let { items.add(it) }
+                            itemSnapshot.child("price").getValue(Double::class.java)?.let { prices.add(it) }
                             itemSnapshot.child("quantity").getValue(Int::class.java)?.let { quantities.add(it) }
                         }
 
@@ -164,8 +164,7 @@ class OrderSummaryActivity : AppCompatActivity() {
     }
 
     private fun calculateTotals() {
-        var subtotal = prices.zip(quantities).sumOf { it.first * it.second }
-
+        val subtotal = prices.zip(quantities).sumOf { it.first * it.second }
         binding.subtotalAmount.text = String.format("%.2f", subtotal)
 
         val total = promotionDiscount?.let { discount ->
@@ -173,7 +172,6 @@ class OrderSummaryActivity : AppCompatActivity() {
         } ?: subtotal
 
         binding.totalAmount.text = String.format("%.2f", total)
-        //binding.discountAmount.text = String.format("%.2f", promotionDiscount ?: 0.0)
     }
 
     private fun loadRestaurantName() {

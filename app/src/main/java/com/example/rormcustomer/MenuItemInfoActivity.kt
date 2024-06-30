@@ -114,13 +114,14 @@ class MenuItemInfoActivity : AppCompatActivity() {
         val query = orderRef.orderByChild("userId").equalTo(userId)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                var itemFound = false
+                var orderFound = false
                 for (orderSnapshot in snapshot.children) {
                     val orderRestaurantId = orderSnapshot.child("restaurantId").getValue(String::class.java)
                     if (orderRestaurantId == restaurantId) {
-                        val itemsSnapshot = orderSnapshot.child("items")
+                        val itemsSnapshot = orderSnapshot.child("orderItems")
+                        var itemFound = false
                         for (itemSnapshot in itemsSnapshot.children) {
-                            val existingItemName = itemSnapshot.child("foodName").getValue(String::class.java)
+                            val existingItemName = itemSnapshot.child("itemName").getValue(String::class.java)
                             if (existingItemName == binding.menuItemNameTextView.text.toString()) {
                                 val existingQuantity = itemSnapshot.child("quantity").getValue(Int::class.java) ?: 0
                                 val newQuantity = existingQuantity + number
@@ -133,24 +134,25 @@ class MenuItemInfoActivity : AppCompatActivity() {
                             val newItemRef = itemsSnapshot.ref.push()
                             newItemRef.setValue(
                                 mapOf(
-                                    "foodName" to binding.menuItemNameTextView.text.toString(),
-                                    "foodPrice" to binding.menuItemPriceTextView.text.toString(),
+                                    "itemName" to binding.menuItemNameTextView.text.toString(),
+                                    "price" to binding.menuItemPriceTextView.text.toString().toDouble(),
                                     "quantity" to number
                                 )
                             )
                         }
+                        orderFound = true
                         break
                     }
                 }
-                if (!itemFound) {
+                if (!orderFound) {
                     val newOrderRef = orderRef.push()
                     val orderData = mapOf(
                         "userId" to userId,
                         "restaurantId" to restaurantId,
-                        "items" to listOf(
+                        "orderItems" to listOf(
                             mapOf(
-                                "foodName" to binding.menuItemNameTextView.text.toString(),
-                                "foodPrice" to binding.menuItemPriceTextView.text.toString(),
+                                "itemName" to binding.menuItemNameTextView.text.toString(),
+                                "price" to binding.menuItemPriceTextView.text.toString().toDouble(),
                                 "quantity" to number
                             )
                         )
@@ -167,6 +169,7 @@ class MenuItemInfoActivity : AppCompatActivity() {
         })
     }
 
+
     private fun updateBasket() {
         val userId = auth.currentUser?.uid ?: return
         val restaurantId = intent.getStringExtra("restaurantId") ?: return
@@ -178,9 +181,9 @@ class MenuItemInfoActivity : AppCompatActivity() {
                 for (orderSnapshot in snapshot.children) {
                     val orderRestaurantId = orderSnapshot.child("restaurantId").getValue(String::class.java)
                     if (orderRestaurantId == restaurantId) {
-                        val itemsSnapshot = orderSnapshot.child("items")
+                        val itemsSnapshot = orderSnapshot.child("orderItems")
                         for (itemSnapshot in itemsSnapshot.children) {
-                            val existingItemName = itemSnapshot.child("foodName").getValue(String::class.java)
+                            val existingItemName = itemSnapshot.child("itemName").getValue(String::class.java)
                             if (existingItemName == binding.menuItemNameTextView.text.toString()) {
                                 if (number > 0) {
                                     itemSnapshot.ref.child("quantity").setValue(number)
