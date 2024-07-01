@@ -136,6 +136,7 @@ class RestaurantInfoActivity : AppCompatActivity() {
                 val restaurantName = dataSnapshot.child("name").value.toString()
                 val restaurantPrice = dataSnapshot.child("price").value.toString()
                 val restaurantLocation = dataSnapshot.child("location").value.toString()
+                val restaurantImage = dataSnapshot.child("images").getValue(object : GenericTypeIndicator<List<String>>() {}).orEmpty()
 
                 binding.apply {
                     restaurantNameInfo.text = restaurantName

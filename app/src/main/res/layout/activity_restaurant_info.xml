@@ -36,11 +36,17 @@
                         android:layout_height="256dp"
                         app:cardCornerRadius="15dp">
 
-                        <com.denzcoskun.imageslider.ImageSlider
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/default_placeholder" />
+
+<!--                        <com.denzcoskun.imageslider.ImageSlider
                             android:id="@+id/imageSlider2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:iss_text_align="CENTER" />
+                            app:iss_text_align="CENTER" />-->
                     </androidx.cardview.widget.CardView>
 
                     <androidx.cardview.widget.CardView
@@ -111,7 +117,7 @@
                                     android:textSize="16sp" />
 
                                 <TextView
-                                    android:id="@+id/rrestaurantReviewInfo"
+                                    android:id="@+id/restaurantReviewInfo"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
@@ -130,7 +136,7 @@
                                     android:id="@+id/location"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:drawableLeft="@drawable/location1"
+                                    android:drawableLeft="@drawable/location"
                                     android:drawablePadding="14dp"
                                     android:fontFamily="@font/roboto"
                                     android:text="Location"

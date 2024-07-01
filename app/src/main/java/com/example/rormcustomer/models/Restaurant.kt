@@ -2,8 +2,8 @@ package com.example.rormcustomer.models
 
 data class Restaurant(
     val restaurantId: String? = null,
-    val location: String? = null,
     val name: String? = null,
+    val location: String? = null,
     val phone: String? = null,
     val address: String? = null,
     val price: String? = null,

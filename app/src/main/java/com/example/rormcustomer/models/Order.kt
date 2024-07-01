@@ -11,4 +11,7 @@ data class Order(
     val paymentMethod: String = "",
     val promotionId: String = "",
     val reservationId: String = "",
+    val restaurantId: String = "",
+    val userId: String = "",
+    val reservationDetails: Reservation? = null
 )

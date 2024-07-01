@@ -12,21 +12,27 @@ import com.example.rormcustomer.models.Reservation
 import com.example.rormcustomer.models.Restaurant
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.util.*
 
 class UpcomingReservationActivity : AppCompatActivity() {
-/*
     private lateinit var binding: ActivityUpcomingReservationBinding
     private lateinit var database: FirebaseDatabase
     private lateinit var reservationsRef: DatabaseReference
+    private lateinit var restaurantsRef: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private lateinit var adapter: UpcomingReservationAdapter
     private val reservations = mutableListOf<Reservation>()
+    private val restaurants = mutableMapOf<String, Restaurant>()
     private var selectedReservationId: String? = null
+    private var currentRestaurantId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUpcomingReservationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Get the current restaurant ID from the Intent
+        currentRestaurantId = intent.getStringExtra("restaurantId")
 
         database = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
@@ -35,9 +41,8 @@ class UpcomingReservationActivity : AppCompatActivity() {
 
         adapter = UpcomingReservationAdapter(
             reservations,
-            null,
+            restaurants,
             { reservation ->
-                // Handle item click
                 val intent = Intent(this, ReservationInfoActivity::class.java)
                 intent.putExtra("reservationId", reservation.reservationId)
                 intent.putExtra("bookingTime", reservation.timeSlot)
@@ -46,7 +51,6 @@ class UpcomingReservationActivity : AppCompatActivity() {
             },
             { reservation, position ->
                 selectedReservationId = reservation.reservationId
-                // Handle item long click (if needed)
             }
         )
 
@@ -54,22 +58,13 @@ class UpcomingReservationActivity : AppCompatActivity() {
         binding.reservationRecyclerView.adapter = adapter
 
         reservationsRef = database.getReference("reservations")
+        restaurantsRef = database.getReference("restaurants")
 
         loadReservations(userId)
-
-        binding.addButton.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Choose reservation ...")
-                .setMessage("Do you want to add this reservation?")
-                .setPositiveButton("Yes") { dialog, which ->
-                    saveReservationToOrderDatabase(selectedReservationId)
-                }
-                .setNegativeButton("No", null)
-                .show()
-        }
     }
 
     private fun loadReservations(userId: String) {
+        val currentTime = System.currentTimeMillis()
         val query = reservationsRef.orderByChild("userId").equalTo(userId)
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -77,7 +72,10 @@ class UpcomingReservationActivity : AppCompatActivity() {
                 for (reservationSnapshot in snapshot.children) {
                     val reservation = reservationSnapshot.getValue(Reservation::class.java)
                     reservation?.let {
-                        reservations.add(it)
+                        if (it.date > currentTime && it.restaurantId == currentRestaurantId) {
+                            reservations.add(it)
+                            loadRestaurantDetails(it.restaurantId)
+                        }
                     }
                 }
                 adapter.notifyDataSetChanged()
@@ -89,24 +87,34 @@ class UpcomingReservationActivity : AppCompatActivity() {
         })
     }
 
-    private fun saveReservationToOrderDatabase(reservationId: String?) {
-        if (reservationId != null) {
-            val orderDatabase = FirebaseDatabase.getInstance().getReference("orders")
-            val newOrderId = orderDatabase.push().key
-            if (newOrderId != null) {
-                val orderData = hashMapOf(
-                    "reservationId" to reservationId,
-                    // Add other necessary fields here
-                )
-                orderDatabase.child(newOrderId).setValue(orderData)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            // Handle success
-                        } else {
-                            // Handle failure
-                        }
-                    }
+    private fun loadRestaurantDetails(restaurantId: String) {
+        restaurantsRef.child(restaurantId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val restaurant = snapshot.getValue(Restaurant::class.java)
+                restaurant?.let {
+                    restaurants[restaurantId] = it
+                    adapter.notifyDataSetChanged()
+                }
             }
-        }
-    }*/
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("UpcomingReservationActivity", "Error loading restaurant details: ${error.message}")
+            }
+        })
+    }
+
+    fun checkReservationAvailability(reservationId: String, callback: (Boolean) -> Unit) {
+        val ordersRef = database.getReference("orders")
+        ordersRef.orderByChild("reservationDetails/reservationId").equalTo(reservationId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    callback(!snapshot.exists())
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("UpcomingReservationActivity", "Error checking reservation: ${error.message}")
+                    callback(false)
+                }
+            })
+    }
 }

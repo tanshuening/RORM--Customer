@@ -12,6 +12,7 @@
         android:id="@+id/orderSummaryAppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">

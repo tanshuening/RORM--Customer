@@ -66,10 +66,11 @@ class HomeFragment : Fragment() {
 
     private fun fetchAndDisplayUserName() {
         val userId = auth.currentUser?.uid ?: return
+
         val userRef = database.reference.child("users").child(userId)
         userRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val username = snapshot.child("name").getValue(String::class.java)
+                val username = snapshot.child("username").getValue(String::class.java)
                 username?.let {
                     val userNameTextView = binding.root.findViewById<TextView>(R.id.userName)
                     userNameTextView.text = it
