@@ -15,7 +15,7 @@ class RewardsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRewardsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+/*
         val rewardName = listOf("RM5 off", "RM10 off", "10% off")
         val loyaltyPoints = listOf("200", "300", "100")
         val rewardImage = listOf(
@@ -30,6 +30,6 @@ class RewardsActivity : AppCompatActivity() {
 
         binding.rewardsAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener {
             finish()
-        }
+        }*/
     }
 }

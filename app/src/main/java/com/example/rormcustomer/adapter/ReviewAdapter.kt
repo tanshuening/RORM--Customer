@@ -7,7 +7,7 @@ import com.example.rormcustomer.databinding.CardViewReviewBinding
 
 class ReviewAdapter(
     private val customerNames: ArrayList<String>,
-    private val profilePictures: ArrayList<Int>,
+    //private val profilePictures: ArrayList<Int>,
     private val dates: ArrayList<String>,
     private val reviews: ArrayList<String>
 ) : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
@@ -19,10 +19,10 @@ class ReviewAdapter(
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
         val customerName = customerNames[position]
-        val profilePicture = profilePictures[position]
+       // val profilePicture = profilePictures[position]
         val date = dates[position]
         val review = reviews[position]
-        holder.bind(customerName, profilePicture, date, review)
+        holder.bind(customerName, date, review)
     }
 
     override fun getItemCount(): Int {
@@ -30,11 +30,11 @@ class ReviewAdapter(
     }
 
     class ReviewViewHolder(private val binding: CardViewReviewBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(customerName: String, profilePicture: Int, date: String, review: String) {
+        fun bind(customerName: String, date: String, review: String) {
             binding.customerName.text = customerName
             binding.date.text = date
             binding.review.text = review
-            binding.profilePicture.setImageResource(profilePicture)
+            //binding.profilePicture.setImageResource(profilePicture)
         }
     }
 

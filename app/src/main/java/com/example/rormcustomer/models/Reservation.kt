@@ -10,5 +10,6 @@ data class Reservation(
     val specialRequest: String? = null,
     val bookingOccasion: String? = null,
     val bookingPhone: String? = null,
-    val order: Order? = null
+    val order: Order? = null,
+    var restaurant: Restaurant? = null
 )

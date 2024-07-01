@@ -2,7 +2,6 @@ package com.example.rormcustomer.adapter
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
@@ -33,9 +32,7 @@ class UpcomingReservationAdapter(
         holder.bind(reservation, restaurant)
     }
 
-    override fun getItemCount(): Int {
-        return reservations.size
-    }
+    override fun getItemCount(): Int = reservations.size
 
     inner class ReservationViewHolder(private val binding: CardViewUpcomingReservationBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -51,7 +48,7 @@ class UpcomingReservationAdapter(
                     .into(binding.restaurantImage)
             }
 
-            binding.addButton.setOnClickListener {
+            binding.root.setOnClickListener {
                 onItemClick(reservation)
             }
 
@@ -65,7 +62,7 @@ class UpcomingReservationAdapter(
                 activity?.checkReservationAvailability(reservation.reservationId) { isAvailable ->
                     if (isAvailable) {
                         AlertDialog.Builder(binding.root.context)
-                            .setTitle("Choose reservation ...")
+                            .setTitle("Reservation")
                             .setMessage("Do you want to use this reservation?")
                             .setPositiveButton("Yes") { dialog, which ->
                                 val resultIntent = Intent().apply {

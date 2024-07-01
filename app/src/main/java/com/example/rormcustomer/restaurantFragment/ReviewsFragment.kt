@@ -28,11 +28,11 @@ class ReviewsFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        val customerName = arrayListOf("Customer Name 1", "Customer Name 2", "Customer Name 3")
-        val date = arrayListOf("Date 1", "Date 2", "Date 3")
-        val review = arrayListOf("Review 1", "Review 2", "Review 3")
-        val profilePicture = arrayListOf(R.drawable.profile_pic, R.drawable.profile_pic, R.drawable.profile_pic)
-        reviewAdapter = ReviewAdapter(customerName, profilePicture, date, review)
+        val customerName = arrayListOf("Tan Shue Ning")
+        val date = arrayListOf("01/07/2024")
+        val review = arrayListOf("Review 1....")
+        //val profilePicture = arrayListOf(R.drawable.profile_pic, R.drawable.profile_pic, R.drawable.profile_pic)
+        reviewAdapter = ReviewAdapter(customerName, date, review)
 
         binding.reviewRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.reviewRecyclerView.adapter = reviewAdapter

@@ -33,7 +33,7 @@
         android:iconifiedByDefault="false"
         android:padding="5dp"
         android:queryBackground="@android:color/transparent"
-        android:queryHint="Search restaurants and foods"
+        android:queryHint="Search restaurants"
         android:searchIcon="@drawable/search_small"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

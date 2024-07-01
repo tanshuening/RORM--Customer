@@ -72,7 +72,6 @@ class OrderSummaryActivity : AppCompatActivity() {
         loadRestaurantName()
     }
 
-    // Function to set up reservation details
     private fun setupReservationDetails() {
         val numOfPax = intent.getIntExtra("numOfPax", 0)
         val bookingDate = intent.getLongExtra("bookingDate", 0L)
@@ -84,14 +83,12 @@ class OrderSummaryActivity : AppCompatActivity() {
         }
     }
 
-    // Function to set up RecyclerView for order summary items
     private fun setupRecyclerView() {
         adapter = OrderSummaryMenuItemAdapter(items, prices, quantities, restaurantId!!)
         binding.orderSummaryRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.orderSummaryRecyclerView.adapter = adapter
     }
 
-    // Function to set up click listeners for various UI elements
     private fun setupClickListeners() {
         val backClickListener = View.OnClickListener { onBackPressed() }
         binding.orderSummaryAppBarLayout.findViewById<ImageView>(R.id.backButton).setOnClickListener(backClickListener)
@@ -131,7 +128,6 @@ class OrderSummaryActivity : AppCompatActivity() {
         }
     }
 
-    // Function to load saved promotion name from shared preferences
     private fun loadSavedPromotionName() {
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
         val savedPromotionName = sharedPref.getString("promotionName", null)
@@ -140,14 +136,14 @@ class OrderSummaryActivity : AppCompatActivity() {
         }
     }
 
-    // Function to restore payment method from savedInstanceState or database
     private fun restorePaymentMethod(savedInstanceState: Bundle?) {
         paymentMethod = savedInstanceState?.getString("paymentMethod") ?: loadPaymentMethodFromDatabase()
         binding.paymentMethodText.text = paymentMethod ?: "Payment Method"
     }
 
-    // Function to load order data from Firebase
     private fun loadOrderData() {
+        val userId = auth.currentUser?.uid ?: return
+        orderQuery = database.getReference("orders").orderByChild("userId").equalTo(userId)
         orderQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 items.clear()
@@ -180,7 +176,6 @@ class OrderSummaryActivity : AppCompatActivity() {
         })
     }
 
-    // Function to calculate subtotal and total amount
     private fun calculateTotals() {
         subtotal = prices.zip(quantities).sumOf { it.first * it.second }
         binding.subtotalAmount.text = String.format("%.2f", subtotal)
@@ -192,7 +187,6 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.totalAmount.text = String.format("%.2f", totalAmount)
     }
 
-    // Function to load restaurant name from Firebase
     private fun loadRestaurantName() {
         restaurantRef.child("name").get().addOnSuccessListener { snapshot ->
             snapshot.getValue(String::class.java)?.let {
@@ -203,7 +197,6 @@ class OrderSummaryActivity : AppCompatActivity() {
         }
     }
 
-    // Function to load payment method from database
     private fun loadPaymentMethodFromDatabase(): String? {
         var paymentMethodFromDb: String? = null
         orderId?.let { id ->
@@ -218,7 +211,6 @@ class OrderSummaryActivity : AppCompatActivity() {
         return paymentMethodFromDb
     }
 
-    // Function to save order to Firebase database
     private fun saveOrderToDatabase() {
         val userId = auth.currentUser?.uid ?: return
         val ordersRef = database.getReference("orders")
@@ -242,7 +234,8 @@ class OrderSummaryActivity : AppCompatActivity() {
         orderId?.let { id ->
             ordersRef.child(id).setValue(orderData).addOnSuccessListener {
                 Log.d("OrderSummaryActivity", "Order updated successfully")
-                clearOrderSummary()
+                clearLocalOrderData()
+                navigateToRestaurantInfoActivity()
             }.addOnFailureListener {
                 Log.e("OrderSummaryActivity", "Failed to update order", it)
             }
@@ -250,15 +243,15 @@ class OrderSummaryActivity : AppCompatActivity() {
             orderId = ordersRef.push().key
             ordersRef.child(orderId!!).setValue(orderData).addOnSuccessListener {
                 Log.d("OrderSummaryActivity", "Order created successfully")
-                clearOrderSummary()
+                clearLocalOrderData()
+                navigateToRestaurantInfoActivity()
             }.addOnFailureListener {
                 Log.e("OrderSummaryActivity", "Failed to create order", it)
             }
         }
     }
 
-    // Function to clear order summary after saving the order
-    private fun clearOrderSummary() {
+    private fun clearLocalOrderData() {
         items.clear()
         prices.clear()
         quantities.clear()
@@ -269,6 +262,13 @@ class OrderSummaryActivity : AppCompatActivity() {
         binding.promotionsText.text = "Promotions"
         orderId = null
         paymentMethod = null
+    }
+
+    private fun navigateToRestaurantInfoActivity() {
+        val intent = Intent(this, RestaurantInfoActivity::class.java)
+        intent.putExtra("restaurantId", restaurantId)
+        startActivity(intent)
+        finish()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
