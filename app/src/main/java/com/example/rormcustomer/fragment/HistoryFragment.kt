@@ -5,114 +5,108 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.rormcustomer.R
 import com.example.rormcustomer.adapter.PastReservationAdapter
 import com.example.rormcustomer.adapter.UpcomingReservationAdapter
+import com.example.rormcustomer.databinding.FragmentHistoryBinding
 import com.example.rormcustomer.models.Reservation
 import com.example.rormcustomer.models.Restaurant
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import java.util.*
+import com.google.firebase.database.*
 
 class HistoryFragment : Fragment() {
 
-    private lateinit var upcomingRecyclerView: RecyclerView
-    private lateinit var pastRecyclerView: RecyclerView
-    private lateinit var pastAdapter: PastReservationAdapter
-    private lateinit var upcomingAdapter: UpcomingReservationAdapter
+    private var _binding: FragmentHistoryBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var database: DatabaseReference
+    private lateinit var pastReservationAdapter: PastReservationAdapter
+    private lateinit var upcomingReservationAdapter: UpcomingReservationAdapter
     private val pastReservations = mutableListOf<Reservation>()
     private val upcomingReservations = mutableListOf<Reservation>()
-    private val restaurantsMap = mutableMapOf<String, Restaurant>()
+    private val restaurants = mutableMapOf<String, Restaurant>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_history, container, false)
+        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        //upcomingRecyclerView = view.findViewById(R.id.upcomingRecyclerView)
-        pastRecyclerView = view.findViewById(R.id.pastRecyclerView)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        pastAdapter = PastReservationAdapter(pastReservations)
-        upcomingAdapter = UpcomingReservationAdapter(
+        database = FirebaseDatabase.getInstance().reference.child("reservations")
+
+        pastReservationAdapter = PastReservationAdapter(pastReservations)
+        upcomingReservationAdapter = UpcomingReservationAdapter(
             upcomingReservations,
-            restaurantsMap,
-            onItemClick = { reservation ->
+            restaurants,
+            { reservation ->
                 // Handle item click
+                // Example: Show a detailed view of the reservation
             },
-            onItemLongClick = { reservation, position ->
-                // Handle item long click
+            { reservation, position ->
+                // Handle item selection (long click)
+                // Example: Show options to edit or delete the reservation
             }
         )
 
-        pastRecyclerView.layoutManager = GridLayoutManager(context, 2)
-        upcomingRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        binding.pastRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.pastRecyclerView.adapter = pastReservationAdapter
 
-        pastRecyclerView.adapter = pastAdapter
-        upcomingRecyclerView.adapter = upcomingAdapter
+        binding.upcomingRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.upcomingRecyclerView.adapter = upcomingReservationAdapter
 
         fetchReservations()
-
-        return view
     }
 
     private fun fetchReservations() {
-        val database = FirebaseDatabase.getInstance()
-        val reservationsRef = database.getReference("orders")
-
-        reservationsRef.addValueEventListener(object : ValueEventListener {
+        database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 pastReservations.clear()
                 upcomingReservations.clear()
-
                 for (reservationSnapshot in snapshot.children) {
                     val reservation = reservationSnapshot.getValue(Reservation::class.java)
-                    reservation?.let {
-                        fetchRestaurantDetails(it)
+                    if (reservation != null) {
+                        val currentTime = System.currentTimeMillis()
+                        if (reservation.date < currentTime) {
+                            pastReservations.add(reservation)
+                        } else {
+                            upcomingReservations.add(reservation)
+                            loadRestaurantDetails(reservation.restaurantId)
+                        }
                     }
                 }
+                pastReservationAdapter.notifyDataSetChanged()
+                upcomingReservationAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+                // Handle database error
             }
         })
     }
 
-    private fun fetchRestaurantDetails(reservation: Reservation) {
-        val database = FirebaseDatabase.getInstance()
-        val restaurantRef = database.getReference("restaurants").child(reservation.restaurantId)
-
-        restaurantRef.addListenerForSingleValueEvent(object : ValueEventListener {
+    private fun loadRestaurantDetails(restaurantId: String) {
+        val restaurantsRef = FirebaseDatabase.getInstance().reference.child("restaurants").child(restaurantId)
+        restaurantsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val restaurant = snapshot.getValue(Restaurant::class.java)
                 restaurant?.let {
-                    restaurantsMap[it.restaurantId ?: ""] = it
-                    reservation.restaurant = it
-                    if (isUpcoming(reservation.date)) {
-                        upcomingReservations.add(reservation)
-                        upcomingAdapter.notifyDataSetChanged()
-                    } else {
-                        pastReservations.add(reservation)
-                        pastAdapter.notifyDataSetChanged()
-                    }
+                    restaurants[restaurantId] = it
+                    upcomingReservationAdapter.notifyDataSetChanged()
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+                // Handle database error
             }
         })
     }
 
-    private fun isUpcoming(bookingDate: Long): Boolean {
-        val reservationDate = Date(bookingDate)
-        val currentDate = Calendar.getInstance().time
-        return reservationDate.after(currentDate)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

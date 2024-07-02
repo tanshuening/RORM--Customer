@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".fragment.HistoryFragment">
 
     <TextView
@@ -34,118 +35,48 @@
                 android:id="@+id/upcoming"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16sp"
-                android:layout_marginTop="16dp"
+                android:layout_margin="20dp"
                 android:text="Upcoming"
                 android:textSize="16sp"
                 android:fontFamily="@font/roboto_medium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/upcomingLayout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/upcomingRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="20dp"
+                android:layout_margin="20dp"
+                android:orientation="horizontal"
+                android:scrollbars="none"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/upcoming">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/upcomingReservation"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    app:cardCornerRadius="10dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/restaurantImage"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/default_placeholder"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.cardview.widget.CardView>
-
-                <TextView
-                    android:id="@+id/restaurantName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="@font/roboto_medium"
-                    android:paddingStart="4dp"
-                    android:text="Burger"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp"
-                    app:layout_constraintStart_toStartOf="@+id/upcomingReservation"
-                    app:layout_constraintTop_toBottomOf="@+id/upcomingReservation" />
-
-                <TextView
-                    android:id="@+id/restaurantRatings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableLeft="@drawable/star_filled"
-                    android:drawablePadding="5dp"
-                    android:paddingStart="4dp"
-                    android:paddingTop="5dp"
-                    android:text="0.0"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="@+id/restaurantName"
-                    app:layout_constraintTop_toBottomOf="@+id/restaurantName" />
-
-                <TextView
-                    android:id="@+id/dot"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:fontFamily="@font/roboto"
-                    android:paddingTop="5dp"
-                    android:text="•"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/restaurantRatings"
-                    app:layout_constraintStart_toEndOf="@+id/restaurantRatings"
-                    app:layout_constraintTop_toTopOf="@+id/restaurantRatings" />
-
-                <TextView
-                    android:id="@+id/restaurantTag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:fontFamily="@font/roboto"
-                    android:paddingTop="5dp"
-                    android:text="Tag"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/dot"
-                    app:layout_constraintStart_toEndOf="@+id/dot"
-                    app:layout_constraintTop_toTopOf="@+id/dot" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintTop_toBottomOf="@id/upcoming" />
 
             <TextView
                 android:id="@+id/past"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16sp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/roboto_medium"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="30dp"
                 android:text="Past"
                 android:textSize="16sp"
+                android:fontFamily="@font/roboto_medium"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/upcomingLayout" />
+                app:layout_constraintTop_toBottomOf="@id/upcomingRecyclerView" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/pastRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_margin="20dp"
+                android:orientation="horizontal"
+                android:scrollbars="none"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/past" />
+                app:layout_constraintTop_toBottomOf="@id/past" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
