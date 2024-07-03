@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.rormcustomer.AccountActivity
 import com.example.rormcustomer.databinding.FragmentProfileBinding
+import com.example.rormcustomer.RewardsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -55,6 +56,15 @@ class ProfileFragment : Fragment() {
         binding.accountLayout.setOnClickListener(accountClickListener)
         binding.accountIcon.setOnClickListener(accountClickListener)
         binding.accountText.setOnClickListener(accountClickListener)
+
+        val rewardsClickListener = View.OnClickListener {
+            val intent = Intent(activity, RewardsActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.myRewardsLayout.setOnClickListener(rewardsClickListener)
+        binding.myRewardsIcon.setOnClickListener(rewardsClickListener)
+        binding.myRewardsText.setOnClickListener(rewardsClickListener)
     }
 
     private fun fetchUserName() {

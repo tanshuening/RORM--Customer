@@ -175,12 +175,12 @@ class HomeFragment : Fragment() {
         }
     }
 
-/*    private fun setupFloatingActionButton() {
-        binding.fab.setOnClickListener {
-            val intent = Intent(activity, CartActivity::class.java)
-            startActivity(intent)
-        }
-    }*/
+    /*    private fun setupFloatingActionButton() {
+            binding.fab.setOnClickListener {
+                val intent = Intent(activity, CartActivity::class.java)
+                startActivity(intent)
+            }
+        }*/
 
     private fun setupBookingInfoDialog() {
         val bookingInfo = binding.root.findViewById<LinearLayout>(R.id.bookingInfo)

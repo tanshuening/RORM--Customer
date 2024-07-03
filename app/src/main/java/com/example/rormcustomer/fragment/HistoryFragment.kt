@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rormcustomer.adapter.PastReservationAdapter
-import com.example.rormcustomer.adapter.UpcomingReservationAdapter
 import com.example.rormcustomer.databinding.FragmentHistoryBinding
 import com.example.rormcustomer.models.Reservation
 import com.example.rormcustomer.models.Restaurant
@@ -20,7 +19,6 @@ class HistoryFragment : Fragment() {
 
     private lateinit var database: DatabaseReference
     private lateinit var pastReservationAdapter: PastReservationAdapter
-    private lateinit var upcomingReservationAdapter: UpcomingReservationAdapter
     private val pastReservations = mutableListOf<Reservation>()
     private val upcomingReservations = mutableListOf<Reservation>()
     private val restaurants = mutableMapOf<String, Restaurant>()
@@ -38,7 +36,7 @@ class HistoryFragment : Fragment() {
 
         database = FirebaseDatabase.getInstance().reference.child("reservations")
 
-        pastReservationAdapter = PastReservationAdapter(pastReservations)
+/*        pastReservationAdapter = PastReservationAdapter(pastReservations)
         upcomingReservationAdapter = UpcomingReservationAdapter(
             upcomingReservations,
             restaurants,
@@ -50,13 +48,12 @@ class HistoryFragment : Fragment() {
                 // Handle item selection (long click)
                 // Example: Show options to edit or delete the reservation
             }
-        )
+        )*/
 
         binding.pastRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.pastRecyclerView.adapter = pastReservationAdapter
 
         binding.upcomingRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding.upcomingRecyclerView.adapter = upcomingReservationAdapter
 
         fetchReservations()
     }
@@ -79,7 +76,7 @@ class HistoryFragment : Fragment() {
                     }
                 }
                 pastReservationAdapter.notifyDataSetChanged()
-                upcomingReservationAdapter.notifyDataSetChanged()
+               // upcomingReservationAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -95,7 +92,7 @@ class HistoryFragment : Fragment() {
                 val restaurant = snapshot.getValue(Restaurant::class.java)
                 restaurant?.let {
                     restaurants[restaurantId] = it
-                    upcomingReservationAdapter.notifyDataSetChanged()
+                 //   upcomingReservationAdapter.notifyDataSetChanged()
                 }
             }
 

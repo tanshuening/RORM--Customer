@@ -26,11 +26,13 @@ class PastReservationAdapter(private val pastReservations: List<Reservation>) : 
     class ViewHolder(private val binding: CardViewUpcomingReservationBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(reservation: Reservation) {
             binding.restaurantName.text = reservation.restaurant?.name
-            //binding.restaurantRatings.text = reservation.restaurant?.cuisine // Assuming you have ratings in restaurant model
-            // Glide is used to load images from URLs
-            Glide.with(binding.restaurantImage.context)
-                .load(reservation.restaurant?.images?.get(0)) // Assuming the first image is the main image
-                .into(binding.restaurantImage)
+            // Load restaurant image using Glide
+            reservation.restaurant?.images?.firstOrNull()?.let { imageUrl ->
+                Glide.with(binding.restaurantImage.context)
+                    .load(imageUrl)
+                    .centerCrop()
+                    .into(binding.restaurantImage)
+            }
         }
     }
 }

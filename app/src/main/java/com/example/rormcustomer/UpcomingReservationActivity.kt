@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.rormcustomer.adapter.UpcomingReservationAdapter
 import com.example.rormcustomer.databinding.ActivityUpcomingReservationBinding
 import com.example.rormcustomer.models.Reservation
 import com.example.rormcustomer.models.Restaurant
@@ -14,7 +13,7 @@ import com.google.firebase.database.*
 import java.util.*
 
 class UpcomingReservationActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityUpcomingReservationBinding
+/*    private lateinit var binding: ActivityUpcomingReservationBinding
     private lateinit var database: FirebaseDatabase
     private lateinit var reservationsRef: DatabaseReference
     private lateinit var restaurantsRef: DatabaseReference
@@ -115,5 +114,5 @@ class UpcomingReservationActivity : AppCompatActivity() {
                     callback(false)
                 }
             })
-    }
+    }*/
 }

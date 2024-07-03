@@ -1,23 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
+    android:id="@+id/promotionItemContainer"
     android:elevation="5dp">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/cardViewRewards"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="?attr/selectableItemBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/rewardLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -34,50 +34,45 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/rewardsImage"
+                    android:id="@+id/promotionImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:scaleType="centerCrop"
                     tools:srcCompat="@tools:sample/avatars" />
+
             </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/rewardName"
+                android:id="@+id/promotionName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:fontFamily="@font/roboto_medium"
-                android:text="Reward Name"
-                android:layout_marginTop="5dp"
+                android:text="Voucher Name"
                 android:textSize="16sp"
                 app:layout_constraintStart_toEndOf="@+id/cardViewImage"
                 app:layout_constraintTop_toTopOf="@+id/cardViewImage" />
 
             <TextView
-                android:id="@+id/loyaltyPoints"
+                android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:fontFamily="@font/roboto"
-                android:text="000"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@+id/cardViewImage"
-                app:layout_constraintStart_toStartOf="@+id/rewardName"
-                app:layout_constraintTop_toBottomOf="@+id/rewardName" />
+                android:text="Expired on"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/expiredDate"
+                app:layout_constraintStart_toStartOf="@+id/promotionName"
+                app:layout_constraintTop_toBottomOf="@+id/promotionName" />
 
             <TextView
-                android:id="@+id/loyaltyPointsText"
+                android:id="@+id/expiredDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto"
-                android:text="Points"
-                android:textSize="12sp"
+                android:text="Date"
                 android:layout_marginStart="4dp"
-                app:layout_constraintBottom_toBottomOf="@+id/loyaltyPoints"
-                app:layout_constraintStart_toEndOf="@+id/loyaltyPoints"
-                app:layout_constraintTop_toTopOf="@+id/loyaltyPoints" />
-
+                app:layout_constraintStart_toEndOf="@+id/textView"
+                app:layout_constraintBottom_toBottomOf="@+id/textView"
+                app:layout_constraintTop_toTopOf="@+id/textView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
