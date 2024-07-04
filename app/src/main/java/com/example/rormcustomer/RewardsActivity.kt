@@ -16,7 +16,9 @@ class RewardsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRewardsBinding
     private lateinit var database: FirebaseDatabase
     private lateinit var adapter: RewardsAdapter
+    private lateinit var redeemedAdapter: RewardsAdapter
     private var rewardsItems: MutableList<Rewards> = mutableListOf()
+    private var redeemedRewards: MutableList<Rewards> = mutableListOf()
     private var loyaltyPoints: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,23 +27,46 @@ class RewardsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         database = FirebaseDatabase.getInstance()
+
         binding.rewardsRecyclerView.layoutManager = LinearLayoutManager(this)
         adapter = RewardsAdapter(this, rewardsItems, object : RewardsAdapter.OnItemClickListener {
             override fun onItemClick(rewards: Rewards, restaurantId: String) {
-                val intent = Intent(this@RewardsActivity, RewardsInfoActivity::class.java).apply {
-                    putExtra(RewardsInfoActivity.REWARDS_ITEM_ID, rewards.rewardsId)
-                    putExtra(RewardsInfoActivity.RESTAURANT_ID, restaurantId)
-                }
-                startActivity(intent)
+                navigateToRewardsInfo(rewards.rewardsId, restaurantId)
             }
         })
         binding.rewardsRecyclerView.adapter = adapter
 
+        binding.myRewardsRecyclerView.layoutManager = LinearLayoutManager(this)
+        redeemedAdapter = RewardsAdapter(this, redeemedRewards, object : RewardsAdapter.OnItemClickListener {
+            override fun onItemClick(rewards: Rewards, restaurantId: String) {
+                navigateToRewardsInfo(rewards.rewardsId, restaurantId)
+            }
+        })
+        binding.myRewardsRecyclerView.adapter = redeemedAdapter
+
         retrieveLoyaltyPoints()
         retrieveRewardsItem()
+        retrieveRedeemedRewards()
 
         binding.toolbar.findViewById<ImageView>(R.id.backButton).setOnClickListener {
             onBackPressed()
+        }
+    }
+
+    private fun navigateToRewardsInfo(rewardsItemId: String, restaurantId: String) {
+        val intent = Intent(this@RewardsActivity, RewardsInfoActivity::class.java).apply {
+            putExtra(RewardsInfoActivity.REWARDS_ITEM_ID, rewardsItemId)
+            putExtra(RewardsInfoActivity.RESTAURANT_ID, restaurantId)
+        }
+        startActivityForResult(intent, REWARDS_INFO_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REWARDS_INFO_REQUEST_CODE && resultCode == RESULT_OK) {
+            data?.getIntExtra("newPoints", loyaltyPoints)?.let {
+                updateLoyaltyPoints(FirebaseAuth.getInstance().currentUser?.uid ?: return, it)
+            }
         }
     }
 
@@ -60,61 +85,68 @@ class RewardsActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.d("DatabaseError", "Failed to retrieve reservations: ${error.message}")
+                Log.e("RewardsActivity", "Failed to retrieve reservations", error.toException())
             }
         })
     }
 
     private fun updateLoyaltyPoints(userId: String, points: Int) {
+        loyaltyPoints = points
         val userRef = database.reference.child("users").child(userId).child("loyaltyPoints")
         userRef.setValue(points)
+        updateLoyaltyTier(points)
     }
 
-    private fun updateLoyaltyTier(points: Int) {
-        val tier = when {
-            points >= 1000 -> "Platinum"
-            points >= 500 -> "Gold"
-            points >= 200 -> "Silver"
+    private fun updateLoyaltyTier(loyaltyPoints: Int) {
+        val loyaltyTier = when {
+            loyaltyPoints >= 1000 -> "Diamond"
+            loyaltyPoints >= 500 -> "Gold"
+            loyaltyPoints >= 100 -> "Silver"
             else -> "Bronze"
         }
-        binding.loyaltyPoints.text = points.toString()
-        binding.loyaltyTier.text = tier
+        binding.loyaltyTier.text = loyaltyTier
+        binding.loyaltyPoints.text = loyaltyPoints.toString()
     }
 
     private fun retrieveRewardsItem() {
-        val restaurantsRef = database.reference.child("restaurants")
-
-        restaurantsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        val rewardsRef = database.reference.child("rewards")
+        rewardsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 rewardsItems.clear()
-                for (restaurantSnapshot in snapshot.children) {
-                    val restaurantId = restaurantSnapshot.key ?: continue
-                    val rewardsRef: DatabaseReference = database.reference.child("restaurants").child(restaurantId).child("rewards")
-
-                    rewardsRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(rewardsSnapshot: DataSnapshot) {
-                            for (rewardsItemSnapshot in rewardsSnapshot.children) {
-                                val rewardsItem = rewardsItemSnapshot.getValue(Rewards::class.java)
-                                rewardsItem?.let {
-                                    it.rewardsId = rewardsItemSnapshot.key.toString()
-                                    if (!rewardsItems.contains(it)) {
-                                        rewardsItems.add(it)
-                                        adapter.notifyDataSetChanged()
-                                    }
-                                }
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            Log.d("DatabaseError", "Failed to retrieve reward items: ${error.message}")
-                        }
-                    })
+                for (rewardSnapshot in snapshot.children) {
+                    val reward = rewardSnapshot.getValue(Rewards::class.java)
+                    reward?.let { rewardsItems.add(it) }
                 }
+                adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.d("DatabaseError", "Failed to retrieve restaurants: ${error.message}")
+                Log.e("RewardsActivity", "Failed to retrieve rewards", error.toException())
             }
         })
+    }
+
+    private fun retrieveRedeemedRewards() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val redeemedRewardsRef = database.reference.child("users").child(userId).child("redeemedRewards")
+
+        redeemedRewardsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                redeemedRewards.clear()
+                for (redeemedRewardSnapshot in snapshot.children) {
+                    val redeemedReward = redeemedRewardSnapshot.getValue(Rewards::class.java)
+                    redeemedReward?.let { redeemedRewards.add(it) }
+                }
+                redeemedAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("RewardsActivity", "Failed to retrieve redeemed rewards", error.toException())
+            }
+        })
+    }
+
+    companion object {
+        const val REWARDS_INFO_REQUEST_CODE = 1001
     }
 }

@@ -60,6 +60,33 @@ class RestaurantInfoActivity : AppCompatActivity() {
         setupNavigationDrawer()
         setupViewPagerAndTabs()
         fetchRestaurantDetails()
+
+        binding.savedButton.setOnClickListener {
+            saveRestaurant()
+        }
+    }
+
+    private fun saveRestaurant() {
+        val restaurantId = getRestaurantId()
+        val restaurantName = binding.restaurantNameInfo.text.toString()
+        val restaurantPrice = binding.restaurantPriceInfo.text.toString()
+        val restaurantLocation = binding.location.text.toString()
+
+        val savedRestaurantRef = FirebaseDatabase.getInstance().getReference("savedRestaurants").child(restaurantId)
+        val restaurantDetails = mapOf(
+            "restaurantId" to restaurantId,
+            "name" to restaurantName,
+            "price" to restaurantPrice,
+            "location" to restaurantLocation
+        )
+
+        savedRestaurantRef.setValue(restaurantDetails).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("RestaurantInfoActivity", "Restaurant saved successfully")
+            } else {
+                Log.e("RestaurantInfoActivity", "Failed to save restaurant", task.exception)
+            }
+        }
     }
 
     private fun setupCollapsingToolbar() {
@@ -110,7 +137,12 @@ class RestaurantInfoActivity : AppCompatActivity() {
             }
             adapter.addFrag(menuFragment, "Menu")
 
-            adapter.addFrag(ReviewsFragment(), "Review")
+            val reviewsFragment = ReviewsFragment().apply {
+                arguments = Bundle().apply {
+                    putString("RestaurantId", restaurantId)
+                }
+            }
+            adapter.addFrag(reviewsFragment, "Review")
 
             val detailsFragment = DetailsFragment().apply {
                 arguments = Bundle().apply {
@@ -128,6 +160,7 @@ class RestaurantInfoActivity : AppCompatActivity() {
             Log.e("RestaurantInfoActivity", "Error in setupViewPagerAndTabs", e)
         }
     }
+
 
     private fun fetchRestaurantDetails() {
         databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restaurantId)

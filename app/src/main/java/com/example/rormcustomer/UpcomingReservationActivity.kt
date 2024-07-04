@@ -1,6 +1,5 @@
 package com.example.rormcustomer
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -8,20 +7,23 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rormcustomer.databinding.ActivityUpcomingReservationBinding
 import com.example.rormcustomer.models.Reservation
 import com.example.rormcustomer.models.Restaurant
+import com.example.rormcustomer.adapter.UpcomingReservationAdapter
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import java.util.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class UpcomingReservationActivity : AppCompatActivity() {
-/*    private lateinit var binding: ActivityUpcomingReservationBinding
-    private lateinit var database: FirebaseDatabase
-    private lateinit var reservationsRef: DatabaseReference
-    private lateinit var restaurantsRef: DatabaseReference
-    private lateinit var auth: FirebaseAuth
+
+    private lateinit var binding: ActivityUpcomingReservationBinding
     private lateinit var adapter: UpcomingReservationAdapter
     private val reservations = mutableListOf<Reservation>()
     private val restaurants = mutableMapOf<String, Restaurant>()
-    private var selectedReservationId: String? = null
+    private lateinit var reservationsRef: DatabaseReference
+    private lateinit var restaurantsRef: DatabaseReference
+    private lateinit var auth: FirebaseAuth
     private var currentRestaurantId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,34 +34,20 @@ class UpcomingReservationActivity : AppCompatActivity() {
         // Get the current restaurant ID from the Intent
         currentRestaurantId = intent.getStringExtra("restaurantId")
 
-        database = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
-
         val userId = auth.currentUser?.uid ?: return
 
-        adapter = UpcomingReservationAdapter(
-            reservations,
-            restaurants,
-            { reservation ->
-                val intent = Intent(this, ReservationInfoActivity::class.java)
-                intent.putExtra("reservationId", reservation.reservationId)
-                intent.putExtra("bookingTime", reservation.timeSlot)
-                intent.putExtra("bookingDate", reservation.date)
-                startActivity(intent)
-            },
-            { reservation, position ->
-                selectedReservationId = reservation.reservationId
-            }
-        )
+        adapter = UpcomingReservationAdapter(reservations)
 
         binding.reservationRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.reservationRecyclerView.adapter = adapter
 
-        reservationsRef = database.getReference("reservations")
-        restaurantsRef = database.getReference("restaurants")
+        reservationsRef = FirebaseDatabase.getInstance().getReference("reservations")
+        restaurantsRef = FirebaseDatabase.getInstance().getReference("restaurants")
 
         loadReservations(userId)
     }
+
 
     private fun loadReservations(userId: String) {
         val currentTime = System.currentTimeMillis()
@@ -101,8 +89,9 @@ class UpcomingReservationActivity : AppCompatActivity() {
         })
     }
 
+
     fun checkReservationAvailability(reservationId: String, callback: (Boolean) -> Unit) {
-        val ordersRef = database.getReference("orders")
+        val ordersRef = FirebaseDatabase.getInstance().getReference("orders")
         ordersRef.orderByChild("reservationDetails/reservationId").equalTo(reservationId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -114,5 +103,5 @@ class UpcomingReservationActivity : AppCompatActivity() {
                     callback(false)
                 }
             })
-    }*/
+    }
 }

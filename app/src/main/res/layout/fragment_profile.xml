@@ -47,6 +47,7 @@
     </LinearLayout>
 
     <!-- Loyalty Points -->
+<!--
     <LinearLayout
         android:id="@+id/loyaltyPointsLayout"
         android:layout_width="match_parent"
@@ -109,6 +110,7 @@
             android:fontFamily="@font/roboto"
             android:text="Get 200 more points by 6 July 2024 to reach the Platinum." />
     </LinearLayout>
+-->
 
     <!-- Features -->
     <LinearLayout

@@ -1,5 +1,6 @@
 package com.example.rormcustomer
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -19,6 +20,7 @@ class RewardsInfoActivity : AppCompatActivity() {
     private var restaurantId: String? = null
     private lateinit var auth: FirebaseAuth
     private lateinit var imageUrl: String
+    private lateinit var redeemedRewardsRef: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +44,17 @@ class RewardsInfoActivity : AppCompatActivity() {
             finish()
         }
 
+        redeemedRewardsRef = database.reference
+            .child("users")
+            .child(auth.currentUser!!.uid)
+            .child("redeemedRewards")
+
         binding.backButton.setOnClickListener {
             finish()
+        }
+
+        binding.redeemButton.setOnClickListener {
+            redeemReward()
         }
     }
 
@@ -51,12 +62,19 @@ class RewardsInfoActivity : AppCompatActivity() {
         rewardsItemRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    val rewardsItem = snapshot.getValue(Rewards::class.java)
-                    if (rewardsItem != null) {
-                        displayRewardsItem(rewardsItem)
-                        Log.d("RewardsInfoActivity", "Reward retrieved successfully: $rewardsItem")
-                    } else {
-                        Log.e("RewardsInfoActivity", "Reward is null")
+                    try {
+                        val rewardsItem = snapshot.getValue(Rewards::class.java)
+                        if (rewardsItem != null) {
+                            displayRewardsItem(rewardsItem)
+                            Log.d(
+                                "RewardsInfoActivity",
+                                "Reward retrieved successfully: $rewardsItem"
+                            )
+                        } else {
+                            Log.e("RewardsInfoActivity", "Reward is null")
+                        }
+                    } catch (e: DatabaseException) {
+                        Log.e("RewardsInfoActivity", "Failed to convert value: ${e.message}", e)
                     }
                 } else {
                     Log.e("RewardsInfoActivity", "Reward does not exist")
@@ -69,16 +87,74 @@ class RewardsInfoActivity : AppCompatActivity() {
         })
     }
 
-    private fun displayRewardsItem(rewards: Rewards) {
-        binding.apply {
-            promotionNameTextView.text = rewards.name
-            promotionStartDateTextView.text = rewards.startDate
-            promotionEndDateTextView.text = rewards.endDate
-            promotionDescriptionTextView.text = rewards.description
-
-            val imageUri = Uri.parse(rewards.image)
-            Glide.with(this@RewardsInfoActivity).load(imageUri).into(promotionImageView)
+    private fun displayRewardsItem(rewardsItem: Rewards) {
+        with(binding) {
+            promotionNameTextView.text = rewardsItem.name
+            promotionDescriptionTextView.text = rewardsItem.description
+            promotionPointsTextView.text = rewardsItem.points.toString()
+            promotionTncTextView.text = rewardsItem.termsAndConditions
+            promotionStartDateTextView.text = rewardsItem.startDate
+            promotionEndDateTextView.text = rewardsItem.endDate
+            imageUrl = rewardsItem.image
+            Glide.with(this@RewardsInfoActivity).load(Uri.parse(imageUrl))
+                .into(promotionImageView)
         }
+    }
+
+    private fun redeemReward() {
+        rewardsItemRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val rewardsItem = snapshot.getValue(Rewards::class.java)
+                if (rewardsItem != null) {
+                    redeemedRewardsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            if (!dataSnapshot.hasChild(rewardsItemId!!)) {
+                                val currentPoints = dataSnapshot.getValue(Int::class.java) ?: 0
+                                val requiredPoints = rewardsItem.points ?: 0 // Handle nullable points
+
+                                if (currentPoints >= requiredPoints) {
+                                    val newPoints = currentPoints - requiredPoints
+                                    redeemedRewardsRef.child(rewardsItemId!!).setValue(rewardsItem)
+                                    updateLoyaltyPoints(newPoints)
+                                    updateLoyaltyPointsInRewardsActivity(newPoints) // Call this method to update points in RewardsActivity
+                                    markRewardAsRedeemed()
+                                } else {
+                                    Log.e("RewardsInfoActivity", "Not enough points to redeem reward")
+                                }
+                            } else {
+                                Log.e("RewardsInfoActivity", "Reward already redeemed by the user")
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("RewardsInfoActivity", "Failed to retrieve redeemed rewards", error.toException())
+                        }
+                    })
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("RewardsInfoActivity", "Failed to retrieve rewards", error.toException())
+            }
+        })
+    }
+
+    private fun updateLoyaltyPoints(points: Int) {
+        val userRef = database.reference.child("users").child(auth.currentUser!!.uid)
+        userRef.child("loyaltyPoints").setValue(points)
+    }
+
+    private fun markRewardAsRedeemed() {
+        rewardsItemRef.child("redeemed").setValue(true)
+        binding.redeemButton.isEnabled = false
+        binding.redeemButton.text = "Redeemed"
+    }
+
+    private fun updateLoyaltyPointsInRewardsActivity(newPoints: Int) {
+        val intent = Intent().apply {
+            putExtra("newPoints", newPoints)
+        }
+        setResult(RESULT_OK, intent)
     }
 
     companion object {

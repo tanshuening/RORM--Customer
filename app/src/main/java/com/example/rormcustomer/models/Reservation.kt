@@ -11,5 +11,5 @@ data class Reservation(
     val bookingOccasion: String? = null,
     val bookingPhone: String? = null,
     val order: Order? = null,
-    var restaurant: Restaurant? = null
+    var restaurant: Restaurant? = null,
 )

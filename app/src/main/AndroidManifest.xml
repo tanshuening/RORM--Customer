@@ -16,6 +16,9 @@
         android:theme="@style/Theme.RORMCustomer"
         tools:targetApi="31">
         <activity
+            android:name=".FeedbackActivity"
+            android:exported="false" />
+        <activity
             android:name=".PastReservationInfoActivity"
             android:exported="false" />
         <activity
